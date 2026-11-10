@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direktori ID Card Mitra Dokter - KlinikQue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; -webkit-font-smoothing: antialiased; }
+        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .glass-input { background: rgba(30, 41, 59, 0.6); border: 1.5px solid rgba(255, 255, 255, 0.1); color: white; }
+        .glass-input:focus { border-color: #06b6d4; outline: none; }
+        .doctor-id-card { background: linear-gradient(135deg, #064e3b 0%, #0f172a 50%, #0e7490 100%); border: 1.5px solid rgba(20, 184, 166, 0.4); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); position: relative; overflow: hidden; width: 100%; max-width: 340px; margin: 0 auto; border-radius: 1rem; }
+        .doctor-id-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #14b8a6, #06b6d4, #3b82f6); }
+        .doctor-id-card::after { content: '\f0fa'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: -15px; bottom: -20px; font-size: 110px; color: rgba(255, 255, 255, 0.03); pointer-events: none; }
+        .barcode-box { cursor: pointer; transition: transform 0.2s ease; }
+        .barcode-box:hover { transform: scale(1.05); }
+        #id-cards-container::-webkit-scrollbar { width: 5px; }
+        #id-cards-container::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
+        #id-cards-container::-webkit-scrollbar-thumb { background: rgba(20, 184, 166, 0.4); border-radius: 4px; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between pb-8 text-xs">
+    <header class="w-full bg-slate-950/90 border-b border-white/10 sticky top-0 z-50 px-4 py-2">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <a href="dashboard-dev.html" class="w-7 h-7 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition-all" title="Kembali">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                </a>
+                <div>
+                    <span class="text-[8px] text-teal-400 block uppercase font-bold tracking-wider">Dev Hub</span>
+                    <span class="text-[11px] font-extrabold text-white">Direktori ID Card Dokter</span>
+                </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-[9px]">
+                <i class="fa-solid fa-circle text-[6px] mr-1"></i> Live
+            </span>
+        </div>
+    </header>
+    <main class="w-full max-w-md mx-auto px-4 py-3 space-y-3 flex-grow">
+        <div class="glass-card rounded-xl p-2 border border-white/10 max-w-[340px] mx-auto">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-400"><i class="fa-solid fa-magnifying-glass text-[10px]"></i></span>
+                <input type="text" id="search-card-input" onkeyup="filterIdCards()" placeholder="Cari nama dokter atau ID..." class="w-full glass-input rounded-lg px-2.5 py-1.5 pl-7 text-xs placeholder-slate-400">
+            </div>
+        </div>
+        <p class="text-center text-[10px] text-teal-300 italic">💡 Tips: Klik pada barcode untuk scan & melihat rekam jejak profesional dokter.</p>
+        <div id="id-cards-container" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
+            <div class="glass-card rounded-xl p-4 text-center text-slate-400 italic max-w-[340px] mx-auto text-xs">
+                Memuat ID Card dokter dari cloud...
+            </div>
+        </div>
+    </main>
+    <div id="doctor-profile-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-card w-full max-w-md rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto border border-teal-500/30">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold border border-teal-500/30">
+                        <i class="fa-solid fa-id-card-clip text-sm"></i>
+                    </div>
+                    <div>
+                        <span class="text-[8px] text-teal-400 uppercase font-bold tracking-wider block">Verifikasi Paspor Medis</span>
+                        <h3 class="text-xs font-extrabold text-white">Profil & Statistik Dokter</h3>
+                    </div>
+                </div>
+                <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div id="modal-body-content" class="space-y-4"></div>
+            <div class="pt-2 border-t border-white/10 text-center">
+                <button onclick="closeProfileModal()" class="w-full py-2.5 bg-teal-600 hover:bg-teal-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg">
+                    Tutup Lembar Verifikasi
+                </button>
+            </div>
+        </div>
+    </div>
+    <footer class="w-full text-center text-[9px] text-slate-500 py-2 border-t border-white/10 mt-2">
+        &copy; 2026 KlinikQue Developer Hub. All rights reserved.
+    </footer>
+    <script type="module" src="../firebase/firebase-init.js"></script>
+    <script>
+        let cachedDoctors = [];
+        let completedHistoryCache = [];
+
+        function maskDoc(v){ if(!v) return "• • • •"; const s=String(v); if(s.length<=4) return "••••"; return "•••• "+s.slice(-4); }
+        function getFoto(d){ return d.foto || d.photoURL || d.avatar || d.fotoProfil || "https://via.placeholder.com/50"; }
+        function getTtd(d){ return d.ttdUrl || d.ttd || d.tandaTangan || d.ttdImg || d.signature || ""; }
+        function getTelp(d){ return d.telp || d.telepon || d.noHp || d.phone || "-"; }
+        function getIdMitra(d){ return d.idNumber || d.noId || (d.uid ? `ID-${String(d.uid).slice(0,4)}` : "ID-000"); }
+
+        async function loadIdCardsFromCloud() {
+            try {
+                const db = window.dbOnline;
+                if(!db) throw new Error("Firebase belum siap");
+                const qDokter = window.fsQuery(window.fsCollection(db, "dokter"), window.fsWhere("status", "==", "approved"));
+                const qDokterInactive = window.fsQuery(window.fsCollection(db, "dokter"), window.fsWhere("status", "==", "inactive"));
+                const [snapApproved, snapInactive, historySnapshot] = await Promise.all([
+                    window.fsGetDocs(qDokter),
+                    window.fsGetDocs(qDokterInactive).catch(()=>({forEach:()=>{}})),
+                    window.fsGetDocs(window.fsCollection(db, "riwayatSelesai")).catch(() => ({ forEach: () => {} }))
+                ]);
+                cachedDoctors = [];
+                const pushSnap = (snap) => { snap.forEach((docSnap) => { cachedDoctors.push({ firestoreId: docSnap.id, uid: docSnap.id, ...docSnap.data() }); }); };
+                pushSnap(snapApproved); pushSnap(snapInactive);
+                completedHistoryCache = [];
+                historySnapshot.forEach((docSnap) => { completedHistoryCache.push(docSnap.data()); });
+                renderIdCards(cachedDoctors);
+            } catch (err) {
+                console.error("Gagal memuat direktori ID Card:", err);
+                document.getElementById('id-cards-container').innerHTML = `<p class="text-center text-red-400 text-xs">Error: ${err.message}</p>`;
+            }
+        }
+
+        function renderIdCards(doctors) {
+            const container = document.getElementById('id-cards-container');
+            container.innerHTML = "";
+            if (doctors.length === 0) {
+                container.innerHTML = `<div class="glass-card rounded-xl p-4 text-center text-slate-400 italic max-w-[340px] mx-auto text-xs">Belum ada ID Card dokter di cloud.</div>`;
+                return;
+            }
+            doctors.forEach((doc, index) => {
+                let isInactive = doc.status === 'inactive';
+                let statusBadge = isInactive ? `<span class="px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 font-bold text-[7px] border border-red-500/30">⚠️ NONAKTIF</span>` : `<span class="px-1.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold text-[7px] border border-teal-500/30">✓ Approved System</span>`;
+                let doctorId = getIdMitra(doc);
+                let ttd = getTtd(doc);
+                let cardHtml = `
+                    <div class="doctor-id-card p-3 space-y-2 relative z-10 ${isInactive ? 'opacity-75 border-red-500/40' : ''}">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+                            <div class="flex items-center space-x-1.5">
+                                <span class="w-4 h-4 rounded bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-[9px] border border-teal-400/30"><i class="fa-solid fa-suitcase-medical"></i></span>
+                                <span class="text-[9px] font-extrabold tracking-wider text-white">KLINIK QUE MEDICAL</span>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        <div class="grid grid-cols-12 gap-2 items-center">
+                            <div class="col-span-8 space-y-1 overflow-hidden">
+                                <div>
+                                    <h3 class="text-xs font-extrabold text-white truncate leading-tight">${doc.nama || '-'}</h3>
+                                    <p class="text-[9px] text-teal-300 font-bold truncate">${doc.spesialis || 'Spesialis Dokter'}</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="px-1 py-0.2 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 text-[6px] font-bold">STR Valid</span>
+                                    <span class="px-1 py-0.2 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 text-[6px] font-bold">SIP Aktif</span>
+                                </div>
+                                <div class="space-y-0.5 text-[8px] text-slate-200 font-medium">
+                                    <p class="truncate"><i class="fa-solid fa-location-dot mr-1 text-red-400 w-2.5"></i>${doc.alamat || '-'}</p>
+                                    <p class="truncate"><i class="fa-solid fa-phone mr-1 text-emerald-400 w-2.5"></i>${getTelp(doc)}</p>
+                                    <p class="truncate"><i class="fa-solid fa-clock mr-1 text-teal-400 w-2.5"></i>${doc.jam || '08:00 – 16:00 WIB'}</p>
+                                </div>
+                            </div>
+                            <div class="col-span-4 flex flex-col items-center justify-center space-y-1">
+                                <img src="${getFoto(doc)}" alt="Foto" class="w-12 h-14 rounded-lg object-cover shadow-sm shrink-0 border border-white/20">
+                                ${ttd ? `<div class="text-center w-full"><img src="${ttd}" class="h-4 w-16 object-contain mx-auto filter drop-shadow-[0_1px_1px_rgba(20,184,166,0.6)] opacity-95" alt="TTD"></div>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-white/10 text-[8px]">
+                            <span class="font-mono text-teal-300 font-extrabold">No. ID: ${doctorId}</span>
+                            <div onclick="simulateBarcodeScan('${doc.uid}')" class="barcode-box bg-black p-1.5 rounded-lg border border-emerald-500/60 shadow-[0_4px_12px_rgba(16,185,129,0.35)] flex items-center justify-center" title="Klik untuk Scan Barcode">
+                                <svg id="barcode-${index}"></svg>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+            doctors.forEach((doc, index) => {
+                let doctorId = getIdMitra(doc);
+                try { JsBarcode(`#barcode-${index}`, doctorId, { format: "CODE128", lineColor: "#000000", background: "#ffffff", width: 1, height: 14, displayValue: false, margin: 0 }); } catch(e) { console.error("Gagal merender barcode:", e); }
+            });
+        }
+
+        function simulateBarcodeScan(uid) {
+            const docData = cachedDoctors.find(d => d.uid === uid);
+            if (!docData) return;
+            let doctorPatientsCount = completedHistoryCache.filter(h => h.dokterId === uid || h.dokterEmail === docData.email).length;
+            const ttd = getTtd(docData);
+            const modalContent = document.getElementById('modal-body-content');
+            modalContent.innerHTML = `
+                <div class="flex items-center space-x-3 bg-slate-900/80 p-3.5 rounded-2xl border border-white/10">
+                    <img src="${getFoto(docData)}" class="w-16 h-20 rounded-xl object-cover border-2 border-teal-500/40 shadow-md shrink-0" alt="Foto">
+                    <div class="overflow-hidden space-y-1">
+                        <span class="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold text-[8px] border border-teal-500/30 uppercase">Verified Medical Partner</span>
+                        <h4 class="text-xs font-extrabold text-white truncate">${docData.nama || '-'}</h4>
+                        <p class="text-[10px] text-teal-400 font-semibold">${docData.spesialis || 'Spesialis Medis'}</p>
+                        <p class="text-[9px] text-slate-400 font-mono">ID Mitra: ${getIdMitra(docData)}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-teal-950/20 border border-teal-500/20 rounded-xl p-2.5 text-center space-y-0.5">
+                        <i class="fa-solid fa-user-injured text-teal-400 text-xs mb-0.5"></i>
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Pasien Ditangani</span>
+                        <span class="text-sm font-extrabold text-white">${doctorPatientsCount} Orang</span>
+                    </div>
+                    <div class="bg-blue-950/20 border border-blue-500/20 rounded-xl p-2.5 text-center space-y-0.5">
+                        <i class="fa-solid fa-clock-rotate-left text-blue-400 text-xs mb-0.5"></i>
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Jam Operasional</span>
+                        <span class="text-[11px] font-extrabold text-white">${docData.jam || '08:00 – 16:00'}</span>
+                    </div>
+                </div>
+                <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 space-y-2.5 text-[11px]">
+                    <h5 class="font-bold text-teal-300 text-[10px] uppercase tracking-wider border-b border-white/10 pb-1 flex items-center"><i class="fa-solid fa-file-shield mr-1.5"></i> Legitimasi & Dokumen Resmi</h5>
+                    <div class="grid grid-cols-2 gap-2 text-slate-300">
+                        <div><span class="text-[9px] text-slate-400 block">Nomor STR (KKI):</span><strong class="text-white font-mono text-[10px]">${maskDoc(docData.strMasked || '')}</strong><span class="text-[9px] text-emerald-400 font-semibold block mt-0.5"><i class="fa-solid fa-circle-check mr-0.5"></i> Terverifikasi (Privat)</span></div>
+                        <div><span class="text-[9px] text-slate-400 block">Nomor SIP (Dinkes):</span><strong class="text-white font-mono text-[10px]">${maskDoc(docData.sipMasked || '')}</strong><span class="text-[9px] text-emerald-400 font-semibold block mt-0.5"><i class="fa-solid fa-circle-check mr-0.5"></i> Terverifikasi (Privat)</span></div>
+                    </div>
+                    <p class="text-[9px] text-slate-500">Nomor STR/SIP lengkap hanya tersedia di panel verifikasi Dev, tidak tampil di direktori publik.</p>
+                </div>
+                <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-300">
+                    <p class="truncate"><i class="fa-solid fa-location-dot mr-2 text-red-400 w-3"></i><strong>Praktik:</strong> ${docData.alamat || '-'}</p>
+                    <p class="truncate"><i class="fa-solid fa-phone mr-2 text-emerald-400 w-3"></i><strong>WhatsApp:</strong> ${getTelp(docData)}</p>
+                    <p class="truncate"><i class="fa-solid fa-envelope mr-2 text-cyan-400 w-3"></i><strong>Email:</strong> ${docData.email || '-'}</p>
+                </div>
+                ${ttd ? `<div class="bg-black/40 border border-white/10 rounded-xl p-2.5 text-center space-y-1"><span class="text-[9px] text-slate-400 block uppercase tracking-wider">Tanda Tangan & Pakta Integritas Sah</span><img src="${ttd}" class="h-8 w-28 object-contain mx-auto filter drop-shadow-[0_1px_2px_rgba(20,184,166,0.6)]" alt="TTD Resmi"></div>` : ''}
+            `;
+            document.getElementById('doctor-profile-modal').classList.remove('hidden');
+        }
+        function closeProfileModal() { document.getElementById('doctor-profile-modal').classList.add('hidden'); }
+        function filterIdCards() {
+            let query = document.getElementById('search-card-input').value.toLowerCase();
+            let filtered = cachedDoctors.filter(d => (d.nama||'').toLowerCase().includes(query) || getIdMitra(d).toLowerCase().includes(query) || (d.spesialis||'').toLowerCase().includes(query));
+            renderIdCards(filtered);
+        }
+        window.addEventListener('load', loadIdCardsFromCloud);
+    </script>
+</body>
+</html>

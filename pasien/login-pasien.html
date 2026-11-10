@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Login Pasien - KlinikQue</title><script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><style>
+body{font-family:'Inter',sans-serif;background:#0B1A2E;background-image:url('../bg-klinik.jpg');background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;-webkit-font-smoothing:antialiased}
+.dark-overlay{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(2,6,23,.52),rgba(2,6,23,.62)),radial-gradient(700px 300px at 15% 0%,rgba(34,211,238,.18),transparent 60%),radial-gradient(600px 300px at 90% 10%,rgba(16,185,129,.14),transparent 60%)}
+.glass-card-super{background:rgba(255,255,255,.08);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);border:1px solid rgba(255,255,255,.18);box-shadow:0 20px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.18);position:relative;overflow:hidden}
+.glass-input{background:rgba(2,6,23,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.16);border-radius:11px;padding:12px 14px;font-size:12.5px;color:#fff;outline:none;transition:.18s;width:100%}
+.glass-input:focus{border-color:rgba(6,182,212,.8);box-shadow:0 0 0 3px rgba(34,211,238,.18);background:rgba(2,6,23,.70)}
+.glass-input::placeholder{color:#94A3B8}
+.header-glass{background:rgba(2,6,23,.55);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border-bottom:1px solid rgba(255,255,255,.14)}
+.toast-mini{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(16px);z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);color:#020617;font-size:12.5px;font-weight:700;padding:11px 16px;border-radius:9999px;box-shadow:0 12px 32px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.3s;max-width:90vw;text-align:center}
+.toast-mini.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style></head><body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950 pb-10">
+<div class="dark-overlay"></div><div id="toastMini" class="toast-mini"></div>
+<header class="w-full header-glass sticky top-0 z-50 px-4 sm:px-8 py-4"><div class="max-w-7xl mx-auto flex items-center justify-between"><div class="flex items-center space-x-3"><img src="../logo-klinikque.png" alt="KlinikQue Logo" class="h-8 w-auto rounded-lg object-contain shadow" onerror="this.src='https://via.placeholder.com/35?text=KQ'"><span class="text-xs font-bold tracking-wider"><span class="text-white">Klinik</span><span class="text-cyan-300">Que</span></span></div><a href="../index.html" class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/15 text-xs font-semibold text-slate-100 hover:text-white transition-all shadow-lg"><i class="fa-solid fa-arrow-left text-cyan-300"></i><span>Beranda</span></a></div></header>
+<main class="w-full max-w-md mx-auto px-4 py-8 flex-grow flex flex-col justify-center items-center relative z-10 space-y-6">
+<div class="text-center w-full"><h1 class="text-2xl font-extrabold tracking-wider" style="text-shadow:0 2px 10px rgba(0,0,0,.5)"><span class="text-white">Portal</span> <span class="text-cyan-300">Pasien KlinikQue</span></h1><p class="text-xs text-slate-200 font-semibold tracking-widest uppercase mt-1">Secure Access & Biometric</p></div>
+<div class="w-full glass-card-super rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+<div id="signin-section"><div class="text-center mb-6"><h3 class="text-sm font-bold text-white tracking-tight">Welcome Back (Pasien)</h3><p class="text-xs text-slate-200 mt-1">Masuk dengan Email atau Sidik Jari (WebAuthn)</p></div>
+<form onsubmit="handlePatientLogin(event)" class="space-y-4"><div><label class="block text-[11px] font-semibold text-slate-100 uppercase tracking-wider mb-1.5">Email Pasien</label><div class="relative"><span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-300 text-xs"><i class="fa-solid fa-envelope"></i></span><input type="email" id="signin-email" required placeholder="pasien@email.com" class="w-full glass-input rounded-xl px-4 py-3 pl-10 text-xs text-white placeholder-slate-400 focus:outline-none transition-all"></div></div><div><label class="block text-[11px] font-semibold text-slate-100 uppercase tracking-wider mb-1.5">Password</label><div class="relative"><span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-300 text-xs"><i class="fa-solid fa-lock"></i></span><input type="password" id="signin-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full glass-input rounded-xl px-4 py-3 pl-10 text-xs text-white placeholder-slate-400 focus:outline-none transition-all"></div></div><button type="submit" id="btn-login-pasien" class="w-full py-3.5 bg-cyan-500 text-slate-950 font-extrabold rounded-xl text-xs tracking-widest uppercase hover:bg-cyan-400 transition-all shadow-lg shadow-cyan-500/25 mt-2">Sign In & Buka Menu</button></form>
+<div class="pt-3 mt-3 border-t border-white/15"><button type="button" onclick="loginPatientFingerprint()" class="w-full py-3.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 font-bold rounded-xl text-xs flex items-center justify-center space-x-3 transition-all shadow-md backdrop-blur-md group opacity-50"><div class="w-8 h-8 rounded-xl bg-emerald-500/25 flex items-center justify-center text-emerald-300 group-hover:scale-110 transition-transform shadow shrink-0"><i class="fa-solid fa-fingerprint text-lg"></i></div><div class="text-left"><span class="block font-extrabold text-white text-[11px]">Masuk dengan Sidik Jari (Segera)</span><span id="bio-sub" class="block text-[9px] text-emerald-200/80">Nonaktif dulu - Fokus OTP</span></div></button><p id="bio-hint" class="text-[10px] text-slate-300 text-center mt-2 leading-relaxed">Sidik jari dinonaktifkan dulu bro, kita beresin OTP dulu biar gak bingung.</p></div>
+<p class="text-center text-xs text-slate-200 mt-6">Belum punya akun? <button onclick="switchForm()" class="text-cyan-300 font-semibold hover:underline ml-1">Sign Up</button></p></div>
+<div id="signup-section" class="hidden"><div class="text-center mb-6"><h3 class="text-sm font-bold text-white tracking-tight">Create Account</h3><p class="text-xs text-slate-200 mt-1">Daftar akun pasien baru</p></div><form onsubmit="handlePatientRegister(event)" class="space-y-3"><div><label class="block text-[11px] font-semibold text-slate-100 uppercase tracking-wider mb-1">Full Name</label><input type="text" id="signup-name" required placeholder="Nama lengkap" class="w-full glass-input rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none"></div><div><label class="block text-[11px] font-semibold text-slate-100 uppercase tracking-wider mb-1">Email Address</label><input type="email" id="signup-email" required placeholder="name@example.com" class="w-full glass-input rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none"></div><div><label class="block text-[11px] font-semibold text-slate-100 uppercase tracking-wider mb-1">Password</label><input type="password" id="signup-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full glass-input rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none"></div><button type="submit" id="btn-daftar-pasien" class="w-full py-3.5 bg-cyan-500 text-slate-950 font-extrabold rounded-xl text-xs tracking-widest uppercase hover:bg-cyan-400 transition-all shadow-lg shadow-cyan-500/25 mt-2">Daftarkan Akun</button></form><p class="text-center text-xs text-slate-200 mt-4">Sudah punya akun? <button onclick="switchForm()" class="text-cyan-300 font-semibold hover:underline ml-1">Sign In</button></p></div>
+</div></main>
+<footer class="w-full text-center text-xs text-slate-300 py-6 border-t border-white/15 bg-slate-950/50 backdrop-blur-md relative z-10">&copy; 2026 KlinikQue by Jack. All rights reserved.</footer>
+<script type="module" src="../firebase/firebase-init.js"></script>
+<script>
+let toastTimer=null;
+function showToast(msg){ const t=document.getElementById('toastMini'); if(!t) return; t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3500); }
+function switchForm() { document.getElementById('signin-section').classList.toggle('hidden'); document.getElementById('signup-section').classList.toggle('hidden'); }
+function getDB(){ return window.dbOnline || (window.fb && window.fb.db) || null; }
+const API_BASE = "https://us-central1-antrian-pasien-d8698.cloudfunctions.net";
+async function cariDataPasien(uid){
+  const db=getDB();
+  try{ const snap = await window.fsGetDoc(window.fsDoc(db, "pasien", uid)); if(snap.exists()) return { id: snap.id, data: snap.data(), koleksi:'pasien' }; }catch(e){}
+  try{ const snap = await window.fsGetDoc(window.fsDoc(db, "pasienPending", uid)); if(snap.exists()) return { id: snap.id, data: snap.data(), koleksi:'pasienPending' }; }catch(e){}
+  return null;
+}
+async function handlePatientRegister(event) {
+    event.preventDefault();
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim().toLowerCase();
+    const password = document.getElementById('signup-password').value;
+    if (!name || !email) { showToast("Nama dan email wajib diisi."); return; }
+    if (password.length < 6) { showToast("Password wajib minimal 6 karakter."); return; }
+    const btn = document.getElementById('btn-daftar-pasien'); btn.disabled = true; btn.innerText = 'Mendaftarkan...';
+    let cred = null;
+    try {
+        const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
+        cred = await createUserWithEmailAndPassword(window.authOnline, email, password);
+        const res = await fetch(API_BASE + '/registerPasien', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid: cred.user.uid, nama: name, email }) });
+        const resData = await res.json();
+        if(!res.ok) throw new Error(resData.message || 'Backend gagal');
+        try{ await window.authOnline.signOut(); }catch(e){}
+        sessionStorage.setItem('klinikque_pending_uid', cred.user.uid);
+        sessionStorage.setItem('klinikque_pending_email', email);
+        sessionStorage.setItem('klinikque_pending_psn', resData.psn || '');
+        sessionStorage.setItem('klinikque_pending_nama', name);
+        showToast("Berhasil daftar! Cek email untuk OTP + ID.");
+        setTimeout(()=>{ window.location.href = '../codeverifikasi/verify-otp.html'; }, 600);
+    } catch (err) {
+        if (cred && cred.user) { try{ await cred.user.delete(); }catch(e){} }
+        let msg = err.message || err;
+        if (err.code === 'auth/email-already-in-use') msg = 'Email sudah terdaftar. Silakan login.';
+        showToast("Gagal daftar: " + msg);
+    }
+    btn.disabled = false; btn.innerText = 'Daftarkan Akun';
+}
+async function handlePatientLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('signin-email').value.trim().toLowerCase();
+    const password = document.getElementById('signin-password').value;
+    const btn = document.getElementById('btn-login-pasien'); btn.disabled = true; btn.innerText = 'Memproses...';
+    try {
+        const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
+        const cred = await signInWithEmailAndPassword(window.authOnline, email, password);
+        const found = await cariDataPasien(cred.user.uid);
+        if(found && found.koleksi === 'pasienPending'){
+          await window.authOnline.signOut();
+          sessionStorage.setItem('klinikque_pending_uid', cred.user.uid);
+          sessionStorage.setItem('klinikque_pending_email', email);
+          sessionStorage.setItem('klinikque_pending_psn', found.data.psn || '');
+          sessionStorage.setItem('klinikque_pending_nama', found.data.nama || '');
+          showToast("Akun belum verifikasi! Lanjut ke halaman OTP ya.");
+          setTimeout(()=>{ window.location.href = '../codeverifikasi/verify-otp.html'; }, 600);
+          btn.disabled=false; btn.innerText='Sign In & Buka Menu'; return;
+        }
+        if (!found) { await window.authOnline.signOut(); showToast("Data pasien tidak ditemukan. Hubungi admin."); btn.disabled=false; btn.innerText='Sign In & Buka Menu'; return; }
+        const data = found.data;
+        if (data.role && data.role !== 'Pasien') { await window.authOnline.signOut(); showToast("Akun ini bukan akun pasien."); btn.disabled=false; btn.innerText='Sign In & Buka Menu'; return; }
+        if(!data.otpVerified){ await window.authOnline.signOut(); showToast("Akun belum verifikasi OTP."); btn.disabled=false; btn.innerText='Sign In & Buka Menu'; return; }
+        showToast("Login Berhasil! Selamat datang, " + (data.nama || 'Pasien'));
+        window.location.href = 'dashboard-pasien.html';
+    } catch (err) {
+        let msg = err.message;
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') msg = 'Email / password salah.';
+        showToast("Login gagal: " + msg);
+    }
+    btn.disabled = false; btn.innerText = 'Sign In & Buka Menu';
+}
+async function loginPatientFingerprint() { showToast("Sidik jari nonaktif dulu bro, kita beresin OTP dulu."); }
+window.addEventListener('DOMContentLoaded', ()=>{
+  const sub=document.getElementById('bio-sub'); const hint=document.getElementById('bio-hint');
+  if(sub) sub.textContent="Nonaktif - Fokus OTP dulu";
+  if(hint) hint.textContent="Sidik jari dinonaktifkan dulu, kita beresin OTP dulu biar gak bingung.";
+  const p = new URLSearchParams(window.location.search);
+  if(p.get('needVerify')==='1') showToast("Akun kamu belum verifikasi. Selesaikan OTP dulu ya.");
+  if(p.get('verified')==='1') showToast("Verifikasi berhasil! Silakan login sekarang.");
+});
+</script></body></html>

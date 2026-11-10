@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Login Dokter - KlinikQue</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  // === KLINIKQUE - EMAILJS ASLI - FINAL ===
+  const EMAILJS_PUBLIC_KEY = "iel57QYSodiZQ2drh";
+  const EMAILJS_SERVICE_ID = "service_f111abk";
+  const EMAILJS_TEMPLATE_ID = "template_ioo1j0k";
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Inter',sans-serif;background:#020617;min-height:100vh}
+.page-bg{position:fixed;inset:0;z-index:-2;background-image:url('../bg-klinik.jpg');background-size:cover;background-position:center;background-attachment:fixed}
+.page-overlay{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg, rgba(2,6,23,.45) 0%, rgba(2,6,23,.52) 50%, rgba(2,6,23,.60) 100%);backdrop-filter:blur(1px)}
+.glass{background:rgba(255,255,255,.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.16);box-shadow:0 20px 40px rgba(0,0,0,.35)}
+.glass-input{background:rgba(255,255,255,.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.16);color:#fff}
+.glass-input::placeholder{color:#cbd5e1}
+.glass-input:focus{border-color:rgba(34,211,238,.8);box-shadow:0 0 0 2px rgba(34,211,238,.2);outline:none;background:rgba(255,255,255,.12)}
+.label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#e2e8f0;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.file-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 12px;cursor:pointer;font-size:11px;color:#e2e8f0;overflow:hidden;white-space:nowrap}
+.file-btn span{overflow:hidden;text-overflow:ellipsis}
+.file-btn b{background:#06b6d4;color:#020617;padding:4px 8px;border-radius:8px;font-size:10px;flex-shrink:0}
+.otp-box{width:44px;height:52px;text-align:center;font-size:20px;font-weight:800;background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(34,211,238,.5);border-radius:12px;color:#fff;outline:none}
+.otp-box:focus{border-color:#22d3ee;box-shadow:0 0 0 2px rgba(34,211,238,.3)}
+.ttd-glass{background:rgba(255,255,255,.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.16)}
+.ttd-canvas{background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.16);border-bottom:2px dashed rgba(255,255,255,.35)}
+.syarat-scroll::-webkit-scrollbar{width:5px}.syarat-scroll::-webkit-scrollbar-thumb{background:#06b6d4;border-radius:10px}.syarat-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.08)}
+</style>
+</head>
+<body class="text-slate-100 min-h-screen flex items-center justify-center p-4 text-xs">
+<div class="page-bg"></div><div class="page-overlay"></div>
+<div class="w-full max-w-md relative z-10 space-y-3">
+<div class="flex justify-end">
+<a href="../index.html" class="inline-flex items-center gap-2 text-[11px] font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md px-3.5 py-2 rounded-full transition-all shadow-lg">Kembali <i class="fa-solid fa-arrow-right"></i></a>
+</div>
+
+<div id="box-signin" class="glass rounded-3xl p-6 sm:p-7 space-y-4">
+<div class="text-center space-y-1">
+<div class="w-12 h-12 mx-auto rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 flex items-center justify-center text-xl"><i class="fa-solid fa-user-doctor"></i></div>
+<h1 class="text-lg font-extrabold text-white">Selamat Datang, Dokter</h1>
+<p class="text-[11px] text-slate-200">Silakan masuk untuk mengelola praktik Anda</p>
+</div>
+<div><label class="label">Email / ID Login</label><input id="login-identifier" placeholder="Email atau KQ-XXXX" class="w-full glass-input rounded-xl px-4 py-3 mt-1.5"></div>
+<div><label class="label">Password</label><input id="login-pass" type="password" placeholder="••••••••" class="w-full glass-input rounded-xl px-4 py-3 mt-1.5"></div>
+<label class="flex items-center gap-2 text-[11px] text-slate-200 cursor-pointer select-none"><input type="checkbox" id="ingat-login" class="accent-cyan-500 w-3.5 h-3.5"> <i class="fa-solid fa-bookmark text-cyan-300"></i> Simpan ID Login saya di perangkat ini</label>
+<button onclick="handleLoginDokter()" id="btn-login" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold rounded-xl text-xs tracking-wider transition-all shadow-lg">MASUK</button>
+<p id="login-msg" class="text-center text-red-300 font-semibold min-h-[16px]"></p>
+<p class="text-center text-[11px] text-slate-200">Belum punya akun? <button onclick="showSignUp()" class="text-cyan-300 font-bold hover:underline">Daftar sebagai Dokter</button></p>
+</div>
+
+<div id="box-signup" class="glass rounded-3xl p-6 sm:p-7 space-y-3.5 hidden max-h-[88vh] overflow-y-auto">
+<div class="text-center space-y-1">
+<div class="w-12 h-12 mx-auto rounded-xl bg-teal-500/20 border border-teal-400/40 text-teal-300 flex items-center justify-center text-xl"><i class="fa-solid fa-user-plus"></i></div>
+<h1 class="text-lg font-extrabold text-white">Daftar Mitra Dokter</h1>
+<p class="text-[11px] text-slate-200">Lengkapi biodata & dokumen resmi Anda</p>
+</div>
+<div><label class="label">Nama Lengkap</label><input id="reg-nama" placeholder="dr. Nama Lengkap" class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5"></div>
+<div><label class="label">Spesialis</label><input id="reg-spesialis" placeholder="Dokter Umum / Dokter Gigi / ..." class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5"></div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="label">Email</label><input id="reg-email" type="email" placeholder="email@aktif.com" class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5"></div><div><label class="label">Nomor WA Aktif</label><input id="reg-hp" placeholder="0859..." class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5"></div></div>
+<div>
+<div class="flex items-center justify-between"><label class="label">Alamat Praktik & GPS</label><button type="button" onclick="ambilLokasiGPS()" id="btn-gps" class="text-[11px] font-bold text-cyan-300 hover:text-white flex items-center gap-1"><i class="fa-solid fa-location-crosshairs"></i> Ambil Lokasi GPS</button></div>
+<input id="reg-alamat" placeholder="Klik Ambil Lokasi GPS untuk alamat presisi..." class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5">
+<input type="hidden" id="reg-lat" value=""><input type="hidden" id="reg-lng" value=""><input type="hidden" id="reg-maps" value="">
+<p id="gps-status" class="text-[10px] text-slate-200 mt-1">Belum ada lokasi GPS. Klik tombol di atas, izinkan lokasi di HP.</p>
+<a id="gps-maps-link" href="#" target="_blank" class="hidden text-[10px] text-cyan-300 font-bold underline">📍 Lihat Titik di Google Maps</a>
+</div>
+<div class="grid grid-cols-2 gap-3"><div><label class="label">Nomor STR</label><input id="reg-str" placeholder="No. STR" class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5"></div><div><label class="label">Nomor SIP</label><input id="reg-sip" placeholder="No. SIP" class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5"></div></div>
+<div class="grid grid-cols-2 gap-3"><div><label class="label">STR Expired</label><input id="reg-str-exp" type="date" class="w-full glass-input rounded-xl px-3 py-2.5 mt-1.5"></div><div><label class="label">SIP Expired</label><input id="reg-sip-exp" type="date" class="w-full glass-input rounded-xl px-3 py-2.5 mt-1.5"></div></div>
+<div><label class="label">Foto Profil</label><label class="file-btn mt-1.5"><b>PILIH FOTO</b><span id="lbl-foto">Belum ada file dipilih</span><input id="reg-foto" type="file" accept="image/*" class="hidden" onchange="document.getElementById('lbl-foto').innerText=this.files[0]?.name||'Belum ada file dipilih'"></label></div>
+<div class="grid grid-cols-2 gap-3"><div><label class="label">Foto STR</label><label class="file-btn mt-1.5"><b>PILIH</b><span id="lbl-str">Belum dipilih</span><input id="reg-str-foto" type="file" accept="image/*" class="hidden" onchange="document.getElementById('lbl-str').innerText=this.files[0]?.name||'Belum dipilih'"></label></div><div><label class="label">Foto SIP</label><label class="file-btn mt-1.5"><b>PILIH</b><span id="lbl-sip">Belum dipilih</span><input id="reg-sip-foto" type="file" accept="image/*" class="hidden" onchange="document.getElementById('lbl-sip').innerText=this.files[0]?.name||'Belum dipilih'"></label></div></div>
+<div class="ttd-glass rounded-2xl p-3">
+<div class="flex items-center justify-between"><label class="label">Tanda Tangan Digital (Pakta Integritas)</label><button type="button" onclick="clearTTD()" class="text-[11px] font-bold text-red-400 hover:text-red-300 flex items-center gap-1"><i class="fa-solid fa-rotate-left"></i> Ulangi</button></div>
+<canvas id="canvas-ttd" width="320" height="110" class="ttd-canvas w-full rounded-xl mt-2 touch-none cursor-crosshair"></canvas>
+<p class="text-[10px] text-slate-200 mt-1">Gores tanda tangan Anda di atas. Tanda tangan ini akan muncul di ID Card.</p>
+</div>
+<label class="flex items-start gap-2 text-[11px] text-slate-200 leading-relaxed"><input type="checkbox" id="reg-setuju" class="mt-0.5 accent-cyan-500"> <span>Saya telah membaca dan menyetujui <button type="button" onclick="bukaSyarat()" class="text-cyan-300 underline font-bold">Syarat & Ketentuan Hukum Sistem</button>. Dengan mencentang, saya menyatakan tunduk pada seluruh ketentuan tersebut.</span></label>
+<div><label class="label">Buat Password</label><input id="reg-pass" type="password" placeholder="Minimal 6 karakter" class="w-full glass-input rounded-xl px-4 py-2.5 mt-1.5"></div>
+<button onclick="handleRegisterDokter()" id="btn-daftar" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold rounded-xl text-xs tracking-wider transition-all shadow-lg">DAFTAR & KIRIM OTP</button>
+<p id="reg-msg" class="text-center text-red-300 font-semibold min-h-[16px]"></p>
+<p class="text-center text-[11px] text-slate-200">Sudah punya akun? <button onclick="showSignIn()" class="text-cyan-300 font-bold hover:underline">Masuk di sini</button></p>
+</div>
+</div>
+
+<div id="modal-otp" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+<div class="glass w-full max-w-sm rounded-3xl p-6 space-y-4 text-center">
+<div class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div>
+<h3 class="font-extrabold text-white">Verifikasi OTP</h3>
+<p class="text-[11px] text-slate-200 leading-relaxed">Kode OTP & ID Login Anda telah dikirim ke<br><b id="otp-email-tampil" class="text-white">-</b><br>Silakan buka email Anda untuk melihatnya.</p>
+<div class="flex justify-center gap-2">
+<input class="otp-box" maxlength="1" id="otp-0" oninput="pindahOtp(this,1)" onkeydown="hapusOtp(event,0)" inputmode="numeric">
+<input class="otp-box" maxlength="1" id="otp-1" oninput="pindahOtp(this,2)" onkeydown="hapusOtp(event,1)" inputmode="numeric">
+<input class="otp-box" maxlength="1" id="otp-2" oninput="pindahOtp(this,3)" onkeydown="hapusOtp(event,2)" inputmode="numeric">
+<input class="otp-box" maxlength="1" id="otp-3" oninput="pindahOtp(this,4)" onkeydown="hapusOtp(event,3)" inputmode="numeric">
+<input class="otp-box" maxlength="1" id="otp-4" oninput="pindahOtp(this,5)" onkeydown="hapusOtp(event,4)" inputmode="numeric">
+<input class="otp-box" maxlength="1" id="otp-5" oninput="pindahOtp(this,6)" onkeydown="hapusOtp(event,5)" inputmode="numeric">
+</div>
+<p class="text-[10px] text-slate-300">Masukkan 6 digit kode dari email. Cek Inbox / Spam jika belum masuk.</p>
+<p id="otp-msg" class="text-[11px] font-bold min-h-[16px] text-amber-300"></p>
+<button onclick="verifikasiOtp()" id="btn-verif-otp" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-xl text-xs tracking-wider">VERIFIKASI & SELESAI</button>
+<div class="flex justify-between text-[11px]"><button onclick="kirimUlangOtp()" class="text-cyan-300 font-bold">Kirim Ulang OTP</button><button onclick="tutupModalOtp()" class="text-slate-300 font-semibold">Nanti Saja</button></div>
+</div>
+</div>
+
+<div id="modal-syarat" class="hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+<div class="glass w-full max-w-lg rounded-3xl overflow-hidden flex flex-col max-h-[88vh]">
+<div class="p-5 pb-3 border-b border-white/10 flex items-start justify-between gap-3">
+<div class="flex gap-3"><div class="w-11 h-11 shrink-0 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 flex items-center justify-center text-lg"><i class="fa-solid fa-scale-balanced"></i></div>
+<div><h3 class="font-extrabold text-white text-sm leading-tight">Syarat & Ketentuan Hukum Sistem</h3><p class="text-[11px] text-slate-300 mt-0.5">KlinikQue • Versi 1.0 • Berlaku sejak 8 November 2026</p><p class="text-[10px] text-cyan-300 mt-0.5">Penyelenggara: KlinikQue • Email: klinikque01@gmail.com • Domisili: Baleendah, Kab. Bandung, Jawa Barat</p></div></div>
+<button onclick="tutupSyarat()" class="w-8 h-8 shrink-0 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+</div>
+<div class="syarat-scroll overflow-y-auto p-5 pt-4 space-y-4 text-[11px] leading-relaxed text-slate-200">
+<div class="bg-white/5 border border-white/10 rounded-xl p-3"><b class="text-white">IDENTITAS PENYELENGGARA</b><br>Sistem ini diselenggarakan oleh <b>KlinikQue</b>, platform layanan kesehatan digital yang dikelola secara perorangan / UMKM.<br>Email Resmi: <b>klinikque01@gmail.com</b> • Domisili: Baleendah, Kab. Bandung, Jawa Barat.<br>Dokumen ini adalah <b>Versi 1.0, diterbitkan dan berlaku sejak 8 November 2026</b>.</div>
+<div class="bg-cyan-500/10 border border-cyan-400/30 rounded-xl p-3 text-cyan-100"><b>Dengan mencentang persetujuan, mengisi OTP, dan menandatangani Pakta Integritas secara digital, Dokter menyatakan telah membaca, memahami, dan tunduk pada seluruh ketentuan ini. Dokumen ini berkekuatan hukum sebagai Perjanjian Elektronik.</b></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 1 - DASAR HUKUM APLIKASI</h4><p>Layanan KlinikQue tunduk pada: <b>UU No. 11 Tahun 2008 jo. UU No. 19 Tahun 2016 tentang Informasi dan Transaksi Elektronik (UU ITE)</b> sebagaimana diubah dengan <b>UU No. 1 Tahun 2024</b>, <b>PP No. 71 Tahun 2019 tentang Penyelenggaraan Sistem dan Transaksi Elektronik (PP PSTE)</b>, <b>UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)</b>, <b>PP No. 80 Tahun 2019 tentang Perdagangan Melalui Sistem Elektronik</b>, <b>UU No. 1 Tahun 2023 tentang KUHP</b>.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 2 - HUKUM KESEHATAN & KEDOKTERAN</h4><p>Dokter wajib tunduk pada: <b>UU No. 17 Tahun 2023 tentang Kesehatan</b>, ketentuan peralihan dari <b>UU No. 29 Tahun 2004 tentang Praktik Kedokteran</b> yang masih berlaku, <b>Kode Etik Kedokteran Indonesia (KODEKI)</b>, <b>Peraturan Konsil Kedokteran Indonesia (KKI)</b>, <b>Peraturan Menteri Kesehatan tentang Rekam Medis & Praktik Dokter</b>. Dokter wajib memiliki STR dan SIP yang masih berlaku, aktif, dan sah.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 3 - HUKUM DOKUMEN & KEASLIAN DATA</h4><p>Seluruh dokumen harus <b>asli, valid, dan milik Dokter sendiri</b>. Dilarang pemalsuan dokumen, manipulasi foto / tanda tangan / GPS, penggunaan identitas orang lain. Pelanggaran merupakan tindak pidana sebagaimana diatur dalam <b>KUHP / UU No. 1 Tahun 2023</b> dan <b>UU ITE Pasal 35-36</b>.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 4 - HUKUM PEMERINTAH, PERIZINAN & PAJAK</h4><p>Dokter bertanggung jawab penuh atas kepatuhan terhadap peraturan pemerintah, perizinan praktik, pajak, dan kewajiban administratif lainnya. KlinikQue bukan pemberi izin praktik dan tidak menggantikan kewenangan pemerintah / KKI / Dinas Kesehatan.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 5 - TANDA TANGAN ELEKTRONIK & PAKTA INTEGRITAS</h4><p>Tanda tangan digital adalah <b>Tanda Tangan Elektronik</b> yang sah menurut <b>UU ITE Pasal 11</b>. Melekat pada ID Card, resep, dan dokumen yang diterbitkan Dokter melalui sistem.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 6 - TANGGUNG JAWAB PROFESI</h4><p><b>Seluruh tindakan medis, diagnosis, resep, dan keputusan klinis adalah tanggung jawab pribadi dan profesional Dokter sepenuhnya.</b> KlinikQue hanya menyediakan platform teknologi dan tidak memberikan layanan medis.</p></div>
+<div class="bg-red-500/10 border border-red-400/30 rounded-xl p-3"><h4 class="font-bold text-red-300 text-[12px] mb-1">PASAL 7 - PERLINDUNGAN APLIKASI - KLINIKQUE TIDAK IKUT TERSERET</h4><p>Apabila Dokter melakukan pelanggaran hukum, malpraktik, pemalsuan dokumen, atau perbuatan melawan hukum lainnya:</p><ul class="list-disc pl-4 mt-1.5 space-y-1"><li><b>Dokter bertanggung jawab secara pribadi</b> baik perdata, pidana, maupun etik.</li><li><b>KlinikQue, Pengelola, Admin, dan Pengembang tidak dapat dituntut, digugat, atau diseret ke persidangan</b> atas perbuatan Dokter tersebut.</li><li>Dokter <b>wajib membebaskan (indemnity) dan mengganti rugi</b> KlinikQue dari segala tuntutan, biaya pengacara, dan kerugian.</li><li>KlinikQue berhak <b>menonaktifkan akun dan melaporkan</b> Dokter kepada KKI / Dinas Kesehatan / Aparat Penegak Hukum.</li><li>KlinikQue hanya berkedudukan sebagai <b>penyedia platform (intermediary)</b> sesuai UU ITE dan PP PSTE.</li></ul></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 8 - DATA PRIBADI & REKAM MEDIS</h4><p>Dokter wajib menjaga kerahasiaan data pasien sesuai <b>UU PDP, UU Kesehatan, dan Kode Etik Kedokteran</b>. Dilarang menyebarluaskan atau memperjualbelikan data pasien.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 9 - LARANGAN PENYALAHGUNAAN APLIKASI</h4><p>Dilarang: resep / surat palsu, praktik tanpa STR/SIP aktif, penipuan pasien, pelecehan, hoaks kesehatan, hacking, menjual akun / ID Login.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 10 - KEAMANAN AKUN & ID LOGIN</h4><p>ID Login (KQ-XXXX), Email, OTP, dan Password adalah tanggung jawab Dokter. Segala aktivitas dengan akun Dokter dianggap dilakukan oleh Dokter sendiri.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 11 - PEMBATASAN TANGGUNG JAWAB KLINIKQUE</h4><p>KlinikQue tidak bertanggung jawab atas kerugian tidak langsung, gangguan jaringan, atau kesalahan input data oleh Dokter.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 12 - PENYELESAIAN SENGKETA</h4><p>Tunduk pada hukum Republik Indonesia. Musyawarah 30 hari, jika gagal diselesaikan melalui <b>pengadilan yang berwenang di wilayah hukum Kab. Bandung, Jawa Barat</b>.</p></div>
+<div><h4 class="font-bold text-white text-[12px] mb-1">PASAL 13 - PENUTUP & BUKTI PERSETUJUAN</h4><p>Sistem menyimpan: <b>nama Dokter, email, waktu persetujuan, versi dokumen (Versi 1.0 - 8 November 2026), ID Login, dan tanda tangan elektronik</b>. Bukti ini sah sebagai perjanjian elektronik menurut UU ITE.</p></div>
+</div>
+<div class="p-4 border-t border-white/10 flex gap-2">
+<button onclick="tutupSyarat()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-xs">Tutup</button>
+<button onclick="setujuSyarat()" class="flex-1 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs">SAYA SETUJU & CENTANG OTOMATIS</button>
+</div>
+</div>
+</div>
+
+<script type="module" src="../firebase/firebase-init.js"></script>
+<script>
+function showSignIn(){document.getElementById('box-signin').classList.remove('hidden');document.getElementById('box-signup').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+function showSignUp(){document.getElementById('box-signup').classList.remove('hidden');document.getElementById('box-signin').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+function bukaSyarat(){document.getElementById('modal-syarat').classList.remove('hidden');}
+function tutupSyarat(){document.getElementById('modal-syarat').classList.add('hidden');}
+function setujuSyarat(){document.getElementById('reg-setuju').checked=true;tutupSyarat();}
+let pendingReg=null;let generatedOtp="";
+function pindahOtp(el,next){if(el.value && next<6)document.getElementById('otp-'+next).focus();}
+function hapusOtp(e,idx){if(e.key==='Backspace' && !e.target.value && idx>0)document.getElementById('otp-'+(idx-1)).focus();}
+function ambilOtpInput(){let s="";for(let i=0;i<6;i++)s+=document.getElementById('otp-'+i).value;return s;}
+function tutupModalOtp(){document.getElementById('modal-otp').classList.add('hidden');showSignIn();}
+async function kirimOtpViaEmail(email, nama, idLogin, otp){
+  try{
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: email, to_name: nama, doctor_id: idLogin, otp_code: otp,
+      from_name: "KlinikQue", reply_to: "klinikque01@gmail.com"
+    });
+    return true;
+  }catch(e){ console.error("Gagal kirim OTP:", e); return false; }
+}
+async function kirimUlangOtp(){
+  if(!pendingReg) return;
+  document.getElementById('otp-msg').innerText='Mengirim ulang OTP ke email Anda...';
+  const ok = await kirimOtpViaEmail(pendingReg.email, pendingReg.nama, pendingReg.idLogin, generatedOtp);
+  document.getElementById('otp-msg').innerText = ok ? 'OTP & ID Login dikirim ulang ke email Anda. Cek Inbox / Spam.' : 'Gagal kirim email. Cek koneksi & klik Kirim Ulang lagi.';
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  const saved=localStorage.getItem('klinikque_login_id');
+  if(saved){document.getElementById('login-identifier').value=saved;document.getElementById('ingat-login').checked=true;}
+  document.getElementById('login-identifier').addEventListener('input',()=>{
+    if(document.getElementById('ingat-login').checked) localStorage.setItem('klinikque_login_id',document.getElementById('login-identifier').value.trim());
+  });
+  document.getElementById('ingat-login').addEventListener('change',(e)=>{
+    if(e.target.checked) localStorage.setItem('klinikque_login_id',document.getElementById('login-identifier').value.trim());
+    else localStorage.removeItem('klinikque_login_id');
+  });
+});
+async function ambilLokasiGPS(){
+  const btn=document.getElementById('btn-gps');const st=document.getElementById('gps-status');const alamatEl=document.getElementById('reg-alamat');
+  if(!navigator.geolocation){st.innerText='HP / Browser tidak mendukung GPS.';return;}
+  btn.innerText='Mencari Lokasi...';btn.disabled=true;st.innerText='📍 Mencari titik GPS presisi... Izinkan lokasi di HP.';
+  navigator.geolocation.getCurrentPosition(async (pos)=>{
+    const lat=pos.coords.latitude;const lng=pos.coords.longitude;const mapsUrl=`https://www.google.com/maps?q=${lat},${lng}`;
+    document.getElementById('reg-lat').value=lat;document.getElementById('reg-lng').value=lng;document.getElementById('reg-maps').value=mapsUrl;
+    try{const res=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=id`);const data=await res.json();alamatEl.value=data.display_name||'';st.innerText=`✅ Lokasi terkunci: ${lat.toFixed(6)}, ${lng.toFixed(6)} - Akurasi ±${Math.round(pos.coords.accuracy)}m`;}catch(e){alamatEl.value=`Titik GPS: ${lat}, ${lng}`;st.innerText=`✅ Lokasi terkunci: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;}
+    const link=document.getElementById('gps-maps-link');link.href=mapsUrl;link.classList.remove('hidden');
+    btn.innerHTML='<i class="fa-solid fa-location-crosshairs"></i> Ambil Lokasi GPS';btn.disabled=false;
+  },(err)=>{st.innerText='❌ Gagal ambil GPS: '+err.message+' - Aktifkan GPS & izinkan lokasi.';btn.innerHTML='<i class="fa-solid fa-location-crosshairs"></i> Ambil Lokasi GPS';btn.disabled=false;},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+const cv=document.getElementById('canvas-ttd');const ctx=cv.getContext('2d');let drawing=false,lastX=0,lastY=0,hasSignature=false;
+function isiBackgroundTTD(){ ctx.clearRect(0,0,cv.width,cv.height); }
+isiBackgroundTTD();
+function pos(e){const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*cv.width/r.width,y:(t.clientY-r.top)*cv.height/r.height};}
+function gambarGoresan(p){ctx.strokeStyle='#22d3ee';ctx.lineWidth=2.4;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;hasSignature=true;}
+cv.addEventListener('mousedown',e=>{drawing=true;let p=pos(e);lastX=p.x;lastY=p.y;});
+cv.addEventListener('mousemove',e=>{if(!drawing)return;gambarGoresan(pos(e));});
+window.addEventListener('mouseup',()=>drawing=false);
+cv.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;let p=pos(e);lastX=p.x;lastY=p.y;},{passive:false});
+cv.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;gambarGoresan(pos(e));},{passive:false});
+function clearTTD(){isiBackgroundTTD();hasSignature=false;}
+function fileToBase64(f){return new Promise((res,rej)=>{if(!f)return res("");const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});}
+function isCanvasEmpty(){return !hasSignature;}
+
+// ===== PERBAIKAN VERSI BERSIH - TANPA idLookup =====
+async function authCreateUser(email,pass){
+  if(window.fb && window.fb.createUserWithEmailAndPassword) return window.fb.createUserWithEmailAndPassword(window.authOnline,email,pass);
+  if(window.createUserFirebase) return window.createUserFirebase(window.authOnline,email,pass);
+  throw new Error('Firebase belum ke-load, refresh halaman dulu');
+}
+async function authSignIn(email,pass){
+  if(window.fb && window.fb.signInWithEmailAndPassword) return window.fb.signInWithEmailAndPassword(window.authOnline,email,pass);
+  if(window.signInFirebase) return window.signInFirebase(window.authOnline,email,pass);
+  throw new Error('Firebase belum ke-load, refresh halaman dulu');
+}
+async function authSignOut(){
+  try{
+    if(window.fb && window.fb.signOut) return window.fb.signOut(window.authOnline);
+    if(window.signOut && window.authOnline) return window.signOut(window.authOnline);
+  }catch(e){}
+}
+async function ambilFotoKompress(file){
+  if(!file) return "";
+  if(window.uploadFotoKeFirebase) return await window.uploadFotoKeFirebase(file);
+  return await fileToBase64(file);
+}
+
+async function handleRegisterDokter(){
+  const btn=document.getElementById('btn-daftar');const msg=document.getElementById('reg-msg');
+  const nama=document.getElementById('reg-nama').value.trim();const spes=document.getElementById('reg-spesialis').value.trim();
+  const email=document.getElementById('reg-email').value.trim();const hp=document.getElementById('reg-hp').value.trim();
+  const alamat=document.getElementById('reg-alamat').value.trim();const str=document.getElementById('reg-str').value.trim();
+  const sip=document.getElementById('reg-sip').value.trim();const pass=document.getElementById('reg-pass').value;
+  const sipExp=document.getElementById('reg-sip-exp').value;const strExp=document.getElementById('reg-str-exp').value;
+  if(!nama||!spes||!email||!hp||!alamat||!str||!sip||!pass){msg.innerText='Lengkapi semua data dulu ya, Dok.';return;}
+  if(pass.length<6){msg.innerText='Password minimal 6 karakter.';return;}
+  if(!document.getElementById('reg-setuju').checked){msg.innerText='Centang Syarat & Ketentuan dulu - klik teks birunya untuk baca.';return;}
+  if(isCanvasEmpty()){msg.innerText='Isi tanda tangan dulu.';return;}
+  btn.innerText='MENGIRIM OTP KE EMAIL...';btn.disabled=true;msg.innerText='';
+  try{
+    const ttdData=cv.toDataURL('image/png');
+    const foto=await ambilFotoKompress(document.getElementById('reg-foto').files[0]);
+    const strFoto=await ambilFotoKompress(document.getElementById('reg-str-foto').files[0]);
+    const sipFoto=await ambilFotoKompress(document.getElementById('reg-sip-foto').files[0]);
+    const idLogin='KQ-'+Math.floor(1000+Math.random()*9000);
+    generatedOtp=String(Math.floor(100000+Math.random()*900000));
+    pendingReg={nama,spes,email,hp,alamat,str,sip,pass,sipExp,strExp,ttdData,foto,strFoto,sipFoto,idLogin,otp:generatedOtp,lat:document.getElementById('reg-lat').value,lng:document.getElementById('reg-lng').value,maps:document.getElementById('reg-maps').value,syaratDisetujui:true,syaratVersi:"1.0 - 8 November 2026",syaratWaktu:Date.now()};
+    const terkirim = await kirimOtpViaEmail(email,nama,idLogin,generatedOtp);
+    if(!terkirim){msg.innerText='Gagal kirim OTP ke email. Cek email Anda & coba lagi.';btn.innerText='DAFTAR & KIRIM OTP';btn.disabled=false;return;}
+    document.getElementById('otp-email-tampil').innerText=email;
+    for(let i=0;i<6;i++) document.getElementById('otp-'+i).value="";
+    document.getElementById('otp-msg').innerText='OTP & ID Login sudah dikirim ke email Anda.';
+    document.getElementById('modal-otp').classList.remove('hidden');
+    document.getElementById('otp-0').focus();
+  }catch(e){console.error(e);msg.innerText='Gagal: '+(e.message||e);}
+  btn.innerText='DAFTAR & KIRIM OTP';btn.disabled=false;
+}
+async function verifikasiOtp(){
+  const btn=document.getElementById('btn-verif-otp');const msg=document.getElementById('otp-msg');
+  const inputOtp=ambilOtpInput();
+  if(inputOtp.length!==6){msg.innerText='Isi 6 digit OTP dari email dulu.';return;}
+  if(inputOtp!==generatedOtp){msg.innerText='OTP salah. Cek email / klik Kirim Ulang.';return;}
+  if(!pendingReg){msg.innerText='Sesi daftar habis, daftar ulang ya.';return;}
+  btn.innerText='MENYIMPAN...';btn.disabled=true;
+  try{
+    const db=window.dbOnline||window.fb.db;
+    const cred=await authCreateUser(pendingReg.email,pendingReg.pass);
+    const uid=cred.user.uid;
+    await window.fsSetDoc(window.fsDoc(db,"dokterPending",uid),{uid,nama:pendingReg.nama,namaDokter:pendingReg.nama,spesialis:pendingReg.spes,specialist:pendingReg.spes,email:pendingReg.email,telepon:pendingReg.hp,noHp:pendingReg.hp,alamat:pendingReg.alamat,alamatKlinik:pendingReg.alamat,jam:"08:00 - 16:00 WIB",jamBuka:"08:00",jamTutup:"16:00",foto:pendingReg.foto,photoURL:pendingReg.foto,tandaTangan:pendingReg.ttdData,ttd:pendingReg.ttdData,signature:pendingReg.ttdData,ttdUrl:pendingReg.ttdData,idNumber:pendingReg.idLogin,idLogin:pendingReg.idLogin,otpVerified:true,syaratDisetujui:true,syaratVersi:pendingReg.syaratVersi,syaratWaktu:pendingReg.syaratWaktu,latitude:pendingReg.lat||"",longitude:pendingReg.lng||"",mapsUrl:pendingReg.maps||"",gpsAlamat:pendingReg.alamat||"",status:"pending",isPracticeActive:false,createdAt:Date.now()});
+    await window.fsSetDoc(window.fsDoc(db,"dokterPrivate",uid),{uid,str:pendingReg.str,sip:pendingReg.sip,sipExpired:pendingReg.sipExp,strExpired:pendingReg.strExp,strFoto:pendingReg.strFoto,sipFoto:pendingReg.sipFoto,idLogin:pendingReg.idLogin,updatedAt:Date.now()},{merge:true});
+    document.getElementById('modal-otp').classList.add('hidden');
+    pendingReg=null;generatedOtp="";
+    alert('OTP terverifikasi! Pendaftaran berhasil. ID Login Anda sudah dikirim ke email, silakan cek email untuk login. Tunggu ACC Admin.');
+    showSignIn();
+  }catch(e){console.error(e);msg.innerText='Gagal simpan: '+(e.message||e);}
+  btn.innerText='VERIFIKASI & SELESAI';btn.disabled=false;
+}
+async function handleLoginDokter(){
+  const btn=document.getElementById('btn-login');const msg=document.getElementById('login-msg');
+  const ident=document.getElementById('login-identifier').value.trim();const pass=document.getElementById('login-pass').value;
+  if(!ident||!pass){msg.innerText='Isi Email/ID + Password dulu.';return;}
+  if(document.getElementById('ingat-login').checked) localStorage.setItem('klinikque_login_id',ident);
+  else localStorage.removeItem('klinikque_login_id');
+  btn.innerText='MEMERIKSA...';btn.disabled=true;msg.innerText='';
+  try{
+    const db=window.dbOnline||window.fb.db;
+    let emailToLogin=ident;
+    if(!ident.includes('@')){
+      throw new Error('Untuk sekarang login pakai Email dulu ya, Dok. Login pakai KQ-XXXX diaktifkan nanti.');
+    }
+    const cred=await authSignIn(emailToLogin,pass);
+    const uid=cred.user.uid;
+    const docSnap=await window.fsGetDoc(window.fsDoc(db,"dokter",uid));
+    if(!docSnap.exists()){
+      const pend=await window.fsGetDoc(window.fsDoc(db,"dokterPending",uid));
+      if(pend.exists() && pend.data().status==="pending"){
+        msg.innerText='Akun masih menunggu ACC Admin. ID Login Anda sudah dikirim ke email saat daftar.';
+        await authSignOut();btn.innerText='MASUK';btn.disabled=false;return;
+      }
+      msg.innerText='Akun tidak ditemukan. Hubungi Admin.';
+      await authSignOut();btn.innerText='MASUK';btn.disabled=false;return;
+    }
+    window.location.href='dashboard-dokter.html';
+  }catch(e){console.error(e);msg.innerText='Gagal login: '+(e.message||e);}
+  btn.innerText='MASUK';btn.disabled=false;
+}
+</script>
+</body>
+</html>

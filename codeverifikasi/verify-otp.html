@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi Akun Pasien - KlinikQue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-image: url('../bg-klinik.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; }
+        .dark-overlay { position: fixed; inset: 0; z-index: -1; background: rgba(5, 8, 17, 0.78); }
+        .glass-card-super { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6); }
+        .otp-input{ width:48px; height:56px; text-align:center; font-size:22px; font-weight:800; background:rgba(2,6,23,.6); border:1px solid rgba(255,255,255,.16); border-radius:12px; color:#fff; outline:none; }
+        .otp-input:focus{ border-color:rgba(6,182,212,.8); box-shadow:0 0 0 3px rgba(34,211,238,.18); }
+        .toast-mini{ position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(16px); z-index:200; background:rgba(255,255,255,.95); color:#020617; font-size:12.5px; font-weight:700; padding:11px 16px; border-radius:9999px; box-shadow:0 12px 32px rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:.3s; max-width:90vw; text-align:center; }
+        .toast-mini.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950">
+    <div class="dark-overlay"></div><div id="toastMini" class="toast-mini"></div>
+    <header class="w-full bg-slate-950/60 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 px-4 sm:px-8 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="../logo-klinikque.png" alt="KlinikQue Logo" class="h-8 w-auto rounded-lg object-contain shadow" onerror="this.src='https://via.placeholder.com/35?text=KQ'">
+                <span class="text-xs font-bold tracking-wider"><span class="text-white">Klinik</span><span class="text-cyan-400">Que</span></span>
+            </div>
+        </div>
+    </header>
+    <main class="w-full max-w-md mx-auto px-4 py-10 flex-grow flex flex-col justify-center items-center relative z-10">
+        <div class="text-center mb-6 w-full">
+            <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 text-[10px] font-bold uppercase tracking-wider mb-3 backdrop-blur-md shadow-lg">
+                <i class="fa-solid fa-shield-halved mr-1.5 text-cyan-400 animate-pulse"></i> Verifikasi OTP Pasien - KlinikQue
+            </div>
+            <h1 class="text-2xl font-extrabold tracking-wider"><span class="text-white">Cek</span> <span class="text-cyan-400">Email Kamu</span></h1>
+            <p class="text-xs text-slate-300 font-medium tracking-wide mt-1.5 px-4">Khusus Pasien. Dokter verifikasi lewat OTP di halaman Login Dokter, bukan di sini.</p>
+        </div>
+        <div class="w-full glass-card-super rounded-3xl p-6 sm:p-8 relative overflow-hidden text-center space-y-6 shadow-2xl">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-envelope-open-text"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 id="verify-title" class="text-sm font-extrabold text-white">Masukkan Kode OTP 6 Digit</h3>
+                <p id="verify-desc" class="text-[11px] text-slate-300 leading-relaxed">Buka inbox / spam email kamu, masukin kode OTP yang dikirim ke email kamu di bawah ini. Kode berlaku 10 menit.</p>
+                <p id="verify-email" class="text-[11px] text-cyan-300 font-mono"></p>
+                <div class="inline-block bg-cyan-500/15 border border-cyan-400/40 rounded-xl px-5 py-2 mt-2">
+                    <p class="text-[10px] text-cyan-200 tracking-widest">ID LOGIN KAMU</p>
+                    <p id="verify-psn" class="text-lg font-extrabold tracking-widest text-white">PSN-0000</p>
+                </div>
+                <p class="text-[11px] text-slate-300">Halo <span id="verify-nama" class="text-white font-bold">Pasien</span>, OTP kamu sudah dikirim!</p>
+            </div>
+            <div class="flex justify-center gap-2">
+                <input id="otp1" class="otp-input" maxlength="1" inputmode="numeric" oninput="pindah(this,'otp2')" onkeydown="balik(event,this,'')">
+                <input id="otp2" class="otp-input" maxlength="1" inputmode="numeric" oninput="pindah(this,'otp3')" onkeydown="balik(event,this,'otp1')">
+                <input id="otp3" class="otp-input" maxlength="1" inputmode="numeric" oninput="pindah(this,'otp4')" onkeydown="balik(event,this,'otp2')">
+                <input id="otp4" class="otp-input" maxlength="1" inputmode="numeric" oninput="pindah(this,'otp5')" onkeydown="balik(event,this,'otp3')">
+                <input id="otp5" class="otp-input" maxlength="1" inputmode="numeric" oninput="pindah(this,'otp6')" onkeydown="balik(event,this,'otp4')">
+                <input id="otp6" class="otp-input" maxlength="1" inputmode="numeric" onkeydown="balik(event,this,'otp5')">
+            </div>
+            <div class="space-y-2">
+                <button onclick="verifikasiOTP()" id="btn-verif" class="w-full py-3 bg-cyan-500 text-slate-950 font-extrabold rounded-xl text-xs tracking-widest uppercase hover:bg-cyan-400 transition-all shadow-lg">Verifikasi & Aktifkan Akun</button>
+                <button onclick="kirimUlangOTP()" id="btn-resend" class="w-full py-3 bg-white/10 border border-white/15 text-white font-bold rounded-xl text-xs tracking-wider uppercase hover:bg-white/20 transition-all">Kirim Ulang OTP</button>
+                <p id="otp-timer" class="text-[11px] text-slate-300"></p>
+            </div>
+            <div class="pt-4 border-t border-white/10 text-xs text-slate-300 space-y-2">
+                <p class="text-slate-400">Sudah punya akun?</p>
+                <div class="flex gap-2">
+                    <a href="../pasien/login-pasien.html" class="flex-1 py-2 rounded-lg bg-white/5 border border-white/10 text-cyan-300 font-semibold text-[11px]">Login Pasien</a>
+                    <a href="../dokter/login-dokter.html" class="flex-1 py-2 rounded-lg bg-white/5 border border-white/10 text-cyan-300 font-semibold text-[11px]">Login Dokter - Lewat OTP</a>
+                </div>
+                <p class="text-[10px] text-amber-300 pt-1">Dokter: Jangan verifikasi di sini. Daftar & masukkan OTP 6 digit di halaman Login Dokter.</p>
+            </div>
+        </div>
+    </main>
+    <footer class="w-full text-center text-xs text-slate-400 py-6 border-t border-white/10 bg-slate-950/60 backdrop-blur-md relative z-10">
+        &copy; 2026 KlinikQue by Jack. All rights reserved.
+    </footer>
+    <script type="module" src="../firebase/firebase-init.js"></script>
+    <script>
+        const API_BASE = "https://us-central1-antrian-pasien-d8698.cloudfunctions.net";
+        let toastTimer=null;
+        function showToast(m){ const t=document.getElementById('toastMini'); if(!t){ alert(m); return; } t.textContent=m; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3500); }
+        function getDB(){ return window.dbOnline || (window.fb && window.fb.db) || null; }
+        function pindah(el,n){ el.value=el.value.replace(/[^0-9]/g,''); if(el.value && n) document.getElementById(n).focus(); }
+        function balik(e,el,p){ if(e.key==='Backspace' && !el.value && p) document.getElementById(p).focus(); }
+        function getOTP(){ return ['otp1','otp2','otp3','otp4','otp5','otp6'].map(id=>document.getElementById(id).value).join(''); }
+        let countdown=null;
+        function mulaiTimer(d){ const el=document.getElementById('otp-timer'); const btn=document.getElementById('btn-resend'); let s=d; btn.disabled=true; clearInterval(countdown); countdown=setInterval(()=>{ s--; el.innerText='Kirim ulang dalam '+s+' detik'; if(s<=0){ clearInterval(countdown); el.innerText=''; btn.disabled=false; } },1000); }
+        async function verifikasiOTP(){
+          const otp = getOTP();
+          const uid = sessionStorage.getItem('klinikque_pending_uid');
+          const email = sessionStorage.getItem('klinikque_pending_email');
+          if(otp.length!==6){ showToast("OTP harus 6 digit."); return; }
+          if(!uid || !email){ showToast("Sesi daftar tidak ditemukan. Daftar dulu ya."); setTimeout(()=>window.location.href='../pasien/login-pasien.html',800); return; }
+          const btn=document.getElementById('btn-verif'); btn.disabled=true; btn.innerText='Memverifikasi...';
+          try{
+            const res = await fetch(API_BASE + '/verifyOTP', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid, email, otp }) });
+            const d = await res.json(); if(!res.ok) throw new Error(d.message||'OTP salah');
+            sessionStorage.removeItem('klinikque_pending_uid'); sessionStorage.removeItem('klinikque_pending_email'); sessionStorage.removeItem('klinikque_pending_psn'); sessionStorage.removeItem('klinikque_pending_nama');
+            showToast("Verifikasi berhasil! Akun aktif. Silakan login.");
+            setTimeout(()=>{ window.location.href='../pasien/login-pasien.html?verified=1'; }, 800);
+          }catch(e){ showToast("Gagal verifikasi: " + e.message); }
+          btn.disabled=false; btn.innerText='Verifikasi & Aktifkan Akun';
+        }
+        async function kirimUlangOTP(){
+          const uid = sessionStorage.getItem('klinikque_pending_uid');
+          const email = sessionStorage.getItem('klinikque_pending_email');
+          if(!uid || !email){ showToast("Sesi hilang. Daftar ulang."); return; }
+          try{
+            const res = await fetch(API_BASE + '/resendOTP', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid, email }) });
+            const d = await res.json(); if(!res.ok) throw new Error(d.message||'Gagal'); showToast("OTP baru dikirim ke " + email); mulaiTimer(60);
+          }catch(e){ showToast("Gagal kirim ulang: " + e.message); }
+        }
+        async function kirimUlangVerifikasi(){ return kirimUlangOTP(); }
+        async function cekStatus(){ showToast("Masukkan OTP 6 digit dari email kamu di atas, lalu klik Verifikasi."); document.getElementById('otp1').focus(); }
+        window.addEventListener('DOMContentLoaded', async ()=>{
+          const p = new URLSearchParams(window.location.search);
+          const urlUid = p.get('uid'), urlEmail = p.get('email'), urlPsn = p.get('psn'), urlNama = p.get('nama');
+          if(urlUid && urlEmail){
+            sessionStorage.setItem('klinikque_pending_uid', urlUid);
+            sessionStorage.setItem('klinikque_pending_email', urlEmail);
+            if(urlPsn) sessionStorage.setItem('klinikque_pending_psn', urlPsn);
+            if(urlNama) sessionStorage.setItem('klinikque_pending_nama', urlNama);
+          }
+          const uid = sessionStorage.getItem('klinikque_pending_uid');
+          const email = sessionStorage.getItem('klinikque_pending_email');
+          const psn = sessionStorage.getItem('klinikque_pending_psn');
+          const nama = sessionStorage.getItem('klinikque_pending_nama');
+          if(!uid || !email){
+            showToast("Sesi daftar tidak ditemukan. Daftar dulu ya.");
+            setTimeout(()=>window.location.href='../pasien/login-pasien.html',1200); return;
+          }
+          document.getElementById('verify-email').innerText = email;
+          document.getElementById('verify-psn').innerText = psn || 'PSN-????';
+          document.getElementById('verify-nama').innerText = nama || 'Pasien';
+          document.getElementById('otp1').focus();
+          mulaiTimer(60);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>KlinikQue</title><script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{font-family:'Inter',sans-serif;background:#020617;background-image:url('bg-klinik.jpg');background-size:cover;background-position:center;background-attachment:fixed;position:fixed;inset:0;width:100%;-webkit-font-smoothing:antialiased}
+.dark-overlay{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(2,6,23,.34),rgba(2,6,23,.50)),radial-gradient(600px 300px at 20% 0%,rgba(34,211,238,.20),transparent 60%),radial-gradient(500px 300px at 90% 30%,rgba(59,130,246,.20),transparent 60%)}
+/* ===== HOME - HANYA VISUAL, LOGIC TETAP SAMA ===== */
+.home-header{background:rgba(255,255,255,.06);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.home-hero-title{font-size:23px;line-height:1.18;letter-spacing:-.4px}
+@media(min-width:640px){.home-hero-title{font-size:30px}}
+.home-hero-sub{font-size:12.5px;line-height:1.5;color:#CBD5E1}
+.home-card{background:rgba(255,255,255,.05);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.home-section-title{font-size:13px;font-weight:800;letter-spacing:-.1px;color:#fff}
+.bagian-atas-kunci{flex-shrink:0}
+.bagian-bawah-scroll{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.jam-realtime-wrap{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:none!important;box-shadow:none!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 0 0;text-align:center}
+.jam-angka{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:800;line-height:1;letter-spacing:1px;color:#fff;text-shadow:0 0 18px rgba(34,211,238,.9),0 2px 8px rgba(0,0,0,.6);font-variant-numeric:tabular-nums;white-space:nowrap}
+.jam-detik{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#67e8f9;text-shadow:0 0 12px rgba(34,211,238,.8)}
+.jam-tanggal{font-size:11px;font-weight:600;color:#e2e8f0;line-height:1.3;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.jam-status{font-size:10px;font-weight:600;color:#cbd5e1;line-height:1.3;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.iklan-wrap{position:relative;border-radius:16px;overflow:hidden;height:56px;flex-shrink:0;background:rgba(255,255,255,.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.10);box-shadow:0 4px 16px rgba(0,0,0,.14)}
+.iklan-slide{display:none;width:100%;height:100%;padding:0 14px;align-items:center;gap:10px}
+.iklan-slide.active{display:flex;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.iklan-dot{width:5px;height:5px;border-radius:9999px;background:rgba(255,255,255,.5);transition:.3s}
+.iklan-dot.active{width:14px;background:#22d3ee;box-shadow:0 0 10px #22d3ee}
+.kartu-jkn-asli{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 2px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;backdrop-filter:blur(8px);min-height:70px;transition:.15s}
+.kartu-jkn-asli:active{transform:scale(.96);background:rgba(255,255,255,.09)}
+.ikon-bulat-jkn{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:6px;background:rgba(34,211,238,.12)!important;border:1px solid rgba(103,232,249,.30);color:#a5f3fc;flex-shrink:0}
+.ikon-bulat-jkn i{color:#a5f3fc}
+.judul-jkn-asli{font-size:9.5px;font-weight:600;line-height:1.4;color:#fff;white-space:nowrap}
+.menu-baru-dot{position:absolute;top:5px;right:5px;background:#f43f5e;color:#fff;font-size:7.5px;font-weight:800;padding:2px 6px;border-radius:9999px;line-height:1.4;letter-spacing:.3px}
+/* ===== POPUP PROFESIONAL - JANGAN DIUBAH LOGICNYA ===== */
+.popup-bg{display:none;position:fixed;inset:0;z-index:100;background:rgba(2,6,23,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:640px){.popup-bg{align-items:center;padding:20px}}
+.popup-bg.open{display:flex;animation:fadeIn .22s ease}
+.popup-box{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:#0F172A;background:linear-gradient(180deg,#111C33 0%,#0F172A 100%);border:1px solid rgba(255,255,255,.12);border-radius:24px 24px 0 0;padding:0;box-shadow:0 -10px 40px rgba(0,0,0,.45),0 20px 60px rgba(0,0,0,.35);animation:popIn .28s cubic-bezier(.2,.9,.3,1.1);-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+@media(min-width:640px){.popup-box{border-radius:24px;max-height:88vh}}
+.popup-box::-webkit-scrollbar{width:5px}
+.popup-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:999px}
+@keyframes popIn{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.popup-header{position:sticky;top:0;z-index:10;background:rgba(15,23,42,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:16px 20px 14px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-radius:24px 24px 0 0}
+@media(max-width:640px){.popup-header{border-radius:24px 24px 0 0}}
+.popup-header-title{font-size:16px;font-weight:800;color:#fff;line-height:1.25;letter-spacing:-.2px}
+.popup-header-sub{font-size:12px;color:#94A3B8;line-height:1.4;margin-top:3px;font-weight:400}
+.popup-close{width:32px;height:32px;min-width:32px;border-radius:9999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:13px;color:#E2E8F0;cursor:pointer;transition:.15s}
+.popup-close:hover{background:rgba(255,255,255,.14)}
+.popup-body{padding:18px 20px 20px}
+.popup-content{display:none}
+.popup-content.open{display:block}
+.popup-section-title{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#94A3B8;margin:16px 0 8px}
+.popup-section-title:first-child{margin-top:0}
+.popup-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px}
+.popup-input{width:100%;background:#020617;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;font-size:14px;color:#fff;outline:none;transition:.15s}
+.popup-input::placeholder{color:#64748B}
+.popup-input:focus{border-color:#22D3EE;box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+.btn-primary{width:100%;padding:13px;background:#06B6D4;background:linear-gradient(180deg,#22D3EE,#06B6D4);color:#020617;font-size:13px;font-weight:800;letter-spacing:.2px;border-radius:12px;box-shadow:0 4px 14px rgba(6,182,212,.35);transition:.15s}
+.btn-primary:active{transform:scale(.98)}
+.btn-ghost{width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12.5px;font-weight:700;border-radius:12px;transition:.15s}
+.btn-ghost:active{transform:scale(.98);background:rgba(255,255,255,.1)}
+.btn-danger-ghost{padding:11px 12px;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.25);color:#FCA5A5;font-size:12px;font-weight:700;border-radius:12px}
+.artikel-card{cursor:pointer;background:rgba(255,255,255,.04)!important;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08)!important;border-radius:16px!important;padding:14px!important;transition:.15s}
+.artikel-card:active{transform:scale(.98);background:rgba(255,255,255,.07)!important}
+.artikel-cuplikan{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.artikel-isi-full p{margin-bottom:12px;line-height:1.7}
+.lokasi-card{cursor:pointer;background:rgba(255,255,255,.04)!important;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08)!important;border-radius:16px!important;padding:14px!important;transition:.15s}
+.lokasi-card:active{transform:scale(.98)}
+.avatar-dokter{width:48px;height:48px;border-radius:14px;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,.15);background:#0ea5e9}
+.avatar-fallback{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.12);background:linear-gradient(135deg,#0EA5E9,#2563EB)}
+.badge-buka{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:62px;height:22px;padding:0 8px;border-radius:9999px;font-size:9px;font-weight:800;white-space:nowrap;flex-shrink:0;line-height:1;letter-spacing:.3px}
+.badge-buka.on{background:rgba(34,197,94,.14);border:1px solid rgba(74,222,128,.4);color:#BBF7D0}
+.badge-buka.off{background:rgba(239,68,68,.14);border:1px solid rgba(252,165,165,.4);color:#FECACA}
+.dot-hidup{width:6px;height:6px;border-radius:9999px;background:#22c55e;animation:denyut 1.6s infinite;flex-shrink:0}
+@keyframes denyut{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 5px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.dot-mati{width:6px;height:6px;border-radius:9999px;background:#ef4444;flex-shrink:0}
+.faq-answer{max-height:0;overflow:hidden;transition:.3s}
+.faq-item.open .faq-answer{max-height:300px}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-icon{transition:.3s}
+.faq-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden}
+#dokterHomeList{display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;max-height:158px;padding:2px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+#dokterHomeList::-webkit-scrollbar{width:4px}
+#dokterHomeList::-webkit-scrollbar-thumb{background:rgba(103,232,249,.5);border-radius:9999px}
+#dokterHomeList::-webkit-scrollbar-track{background:rgba(255,255,255,.06);border-radius:9999px}
+.dokter-card-horizontal{width:100%;height:72px;flex-shrink:0;background:rgba(255,255,255,.05);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:0 12px 0 8px;display:flex;align-items:center;gap:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.dokter-teks{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden}
+.dokter-nama{font-size:13.5px;font-weight:700;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dokter-sub{font-size:11px;color:#a5f3fc;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dokter-alamat{font-size:10.5px;color:#e2e8f0;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dokter-status{font-size:10.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-banner{display:flex;gap:10px;align-items:center;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);border-radius:14px;padding:12px}
+.switch{position:relative;width:48px;height:24px;flex-shrink:0;background:#334155;border-radius:9999px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
+.switch.on{background:#06b6d4}
+.switch span{font-size:8px;font-weight:800;color:#fff;z-index:1}
+.switch:after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:9999px;transition:.2s}
+.switch.on:after{left:27px}
+.pengingat-bunyi{border-color:#f59e0b!important;box-shadow:0 0 16px rgba(245,158,11,.28)!important;animation:denyutKuning 1.4s infinite}
+@keyframes denyutKuning{0%{box-shadow:0 0 0 0 rgba(245,158,11,.35)}70%{box-shadow:0 0 0 8px rgba(245,158,11,0)}100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}}
+.toast-mini{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(16px);z-index:200;background:#fff;color:#020617;font-size:12.5px;font-weight:700;padding:11px 16px;border-radius:9999px;box-shadow:0 12px 32px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.3s;max-width:90vw;text-align:center}
+.toast-mini.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:640px){.popup-body{padding:16px}}
+</style></head><body class="text-slate-100 h-screen flex flex-col overflow-hidden"><div class="dark-overlay"></div><div id="toastMini" class="toast-mini"></div><header class="shrink-0 z-50 home-header mx-3 mt-2"><div class="max-w-7xl mx-auto px-3 h-[52px] flex items-center justify-between"><a href="index.html" class="flex items-center gap-2 min-w-0"><img src="logo-klinikque.png" class="h-9 w-auto rounded-lg object-contain shrink-0" onerror="this.src='https://via.placeholder.com/40?text=KQ'"><span class="text-[22px] font-black leading-none tracking-tight whitespace-nowrap"><span class="text-white">Klinik</span><span class="text-cyan-300">Que</span></span></a><div class="flex items-center gap-1.5 shrink-0"><a href="dokter/login-dokter.html" class="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-semibold flex gap-1 items-center"><i class="fa-solid fa-user-doctor text-cyan-300"></i><span class="hidden sm:inline">Dokter</span></a><a href="pasien/login-pasien.html" class="px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-950 text-[10px] font-bold uppercase tracking-wider">Login</a><a href="akundev/dashboard-dev.html" class="px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-400/40 text-red-200 text-[10px] font-bold flex gap-1 items-center"><i class="fa-solid fa-user-shield"></i><span class="hidden sm:inline">Dev</span></a></div></div></header><div class="bagian-atas-kunci px-3 pt-2.5 relative z-10"><div class="max-w-6xl mx-auto w-full"><div class="text-center max-w-3xl mx-auto px-2"><h1 onclick="bukaPopup('popup-statistik')" class="home-hero-title font-black text-white px-1 cursor-pointer">Revolusi Digital untuk <span class="text-cyan-300">Kesehatan Anda</span> <span class="text-[10px] text-cyan-200 font-semibold align-middle whitespace-nowrap">• Lihat Statistik →</span></h1><p class="home-hero-sub px-4 mt-1.5">Konsultasi, antrean, & layanan kesehatan kini lebih cepat dan terintegrasi.</p></div><div class="jam-realtime-wrap mt-1"><div class="flex items-baseline justify-center gap-1"><span id="jamRealtime" class="jam-angka">--:--</span><span id="jamDetik" class="jam-detik">:00</span><span class="text-[11px] font-bold text-cyan-200 ml-1">WIB</span></div><p id="tanggalRealtime" class="jam-tanggal">Menghubungkan ke server...</p><p id="jamStatusLine" class="jam-status"></p></div><div id="iklanWrap" class="iklan-wrap mt-2.5"></div><div id="iklanDots" class="flex items-center justify-center gap-1.5 mt-1.5"></div></div></div><div class="bagian-bawah-scroll px-3 pt-2 relative z-10"><div class="max-w-6xl mx-auto w-full flex flex-col gap-2.5"><div class="home-card"><div class="flex items-center justify-between px-1 mb-2.5"><h2 class="home-section-title">Menu Pilihanmu</h2><span onclick="bukaPopup('popup-lainnya')" class="text-[10.5px] text-cyan-200 border border-white/15 rounded-full px-2.5 py-1 cursor-pointer bg-white/[.04] leading-none">Lainnya ›</span></div><div class="grid grid-cols-4 gap-2.5"><button onclick="bukaPopup('popup-cekantren')" class="kartu-jkn-asli"><div class="ikon-bulat-jkn"><i class="fa-solid fa-ticket"></i></div><span class="judul-jkn-asli">Cek Antrean<br>(Booking)</span></button><button onclick="bukaPopup('popup-kalkulator')" class="kartu-jkn-asli"><div class="ikon-bulat-jkn"><i class="fa-solid fa-heart-pulse"></i></div><span class="judul-jkn-asli">Kalkulator<br>Sehat</span></button><button onclick="bukaPopup('popup-faq')" class="kartu-jkn-asli"><div class="ikon-bulat-jkn"><i class="fa-solid fa-circle-question"></i></div><span class="judul-jkn-asli">Tanya Jawab<br>Pasien</span></button><button onclick="bukaPopup('popup-darurat')" class="kartu-jkn-asli"><div class="ikon-bulat-jkn"><i class="fa-solid fa-truck-medical"></i></div><span class="judul-jkn-asli">Nomor<br>Darurat</span></button><button onclick="bukaPopup('popup-artikel')" class="kartu-jkn-asli"><div class="ikon-bulat-jkn"><i class="fa-solid fa-newspaper"></i></div><span class="judul-jkn-asli">Artikel &<br>Tips Sehat</span></button><button onclick="bukaPopup('popup-pengingat')" class="kartu-jkn-asli relative"><span class="menu-baru-dot">BARU</span><div class="ikon-bulat-jkn"><i class="fa-solid fa-bell"></i></div><span class="judul-jkn-asli">Pengingat<br>Obat</span></button><button onclick="bukaPopup('popup-lokasi')" class="kartu-jkn-asli"><div class="ikon-bulat-jkn"><i class="fa-solid fa-location-dot"></i></div><span class="judul-jkn-asli">Lokasi<br>Klinik</span></button><button onclick="bukaPopup('popup-lainnya')" class="kartu-jkn-asli"><div class="ikon-bulat-jkn"><i class="fa-solid fa-layer-group"></i></div><span class="judul-jkn-asli">Menu<br>Lainnya</span></button></div></div><div><div class="flex items-center justify-between px-1 mb-2.5"><h2 class="home-section-title">Dokter Mitra KlinikQue</h2><span onclick="bukaPopup('popup-dokter-semua')" class="text-[11px] text-cyan-200 font-semibold cursor-pointer whitespace-nowrap">Lihat Semua →</span></div><div id="dokterHomeList" class="px-0"></div></div></div></div><footer class="border border-white/10 bg-white/[.03] backdrop-blur-md py-2 px-4 text-center text-[10.5px] text-slate-200 relative z-10 shrink-0 mx-3 mb-2 rounded-[18px]"><p>&copy; 2026 KlinikQue by Jack. All rights reserved.</p></footer><div id="popupBg" class="popup-bg" onclick="if(event.target===this) tutupPopup()"><div class="popup-box"><div class="popup-header"><div><h3 id="popupTitle" class="popup-header-title">Layanan</h3><p id="popupSub" class="popup-header-sub"></p></div><button onclick="tutupPopup()" class="popup-close">✕</button></div><div class="popup-body"><div id="popup-dokter-semua" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Semua dokter mitra KlinikQue yang terdaftar.</p><div id="dokterSemuaList" class="space-y-2.5"></div></div><div id="popup-lainnya" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Jelajahi menu lainnya.</p><div class="grid grid-cols-2 gap-2.5"><button onclick="tutupPopup();setTimeout(()=>bukaPopup('popup-statistik'),150)" class="popup-card text-left"><p class="text-[20px]"><i class="fa-solid fa-chart-simple text-cyan-300"></i></p><p class="text-[13px] font-bold text-white mt-2">Statistik Klinik</p><p class="text-[11px] text-slate-400 mt-0.5">Pasien & Dokter</p></button><button onclick="tutupPopup();setTimeout(()=>bukaPopup('popup-artikel'),150)" class="popup-card text-left"><p class="text-[20px]"><i class="fa-solid fa-newspaper text-cyan-300"></i></p><p class="text-[13px] font-bold text-white mt-2">Artikel Kesehatan</p><p class="text-[11px] text-slate-400 mt-0.5">Tips & Edukasi</p></button><button onclick="tutupPopup();setTimeout(()=>bukaPopup('popup-info-obat'),150)" class="popup-card text-left"><p class="text-[20px]"><i class="fa-solid fa-pills text-cyan-300"></i></p><p class="text-[13px] font-bold text-white mt-2">Info Obat</p><p class="text-[11px] text-slate-400 mt-0.5">Info Obat Umum</p></button><button onclick="tutupPopup();setTimeout(()=>bukaPopup('popup-lokasi'),150)" class="popup-card text-left"><p class="text-[20px]"><i class="fa-solid fa-location-dot text-cyan-300"></i></p><p class="text-[13px] font-bold text-white mt-2">Lokasi Klinik</p><p class="text-[11px] text-slate-400 mt-0.5">GPS & Navigasi</p></button><button onclick="tutupPopup();setTimeout(()=>bukaPopup('popup-darurat'),150)" class="popup-card text-left"><p class="text-[20px]"><i class="fa-solid fa-truck-medical text-cyan-300"></i></p><p class="text-[13px] font-bold text-white mt-2">Nomor Darurat</p><p class="text-[11px] text-slate-400 mt-0.5">Ambulans 119</p></button><button onclick="tutupPopup();setTimeout(()=>bukaPopup('popup-pengingat'),150)" class="popup-card text-left"><p class="text-[20px]">💊</p><p class="text-[13px] font-bold text-white mt-2">Pengingat Obat</p><p class="text-[11px] text-slate-400 mt-0.5">Notif Pengingat</p></button></div></div><div id="popup-pengingat" class="popup-content"><div id="pengingatNotifBanner" class="notif-banner mb-3"><span class="text-[18px]">🔔</span><div class="flex-1 min-w-0"><p class="text-[13px] font-bold text-white leading-tight">Notifikasi</p><p id="pengingatNotifStatus" class="text-[11.5px] text-amber-200 leading-snug mt-0.5">Belum aktif - pencet tombol di kanan</p></div><button id="pengingatNotifBtn" onclick="mintaIzinNotif()" class="shrink-0 px-3.5 py-2 bg-amber-400 text-slate-950 text-[11px] font-bold rounded-lg">IZINKAN</button></div><div id="pengingatAktifBanner" class="hidden mb-3 p-3.5 rounded-[14px] bg-amber-400/10 border border-amber-400/40"><p class="text-[13px] font-bold text-amber-200">🔔 Waktunya Minum Obat</p><p id="pengingatAktifText" class="text-[12px] text-white mt-1 leading-relaxed"></p><p class="text-[11px] text-amber-200/80 mt-1">Akan bunyi tiap 2 menit sampai kamu klik Sudah Minum.</p><div class="flex gap-2 mt-3"><button id="pengingatAktifMinumBtn" class="flex-1 py-3 bg-green-500 text-slate-950 text-[12px] font-bold rounded-xl">✅ SUDAH MINUM - BERHENTI</button><button onclick="tundaSemuaBunyi(10)" class="px-3.5 py-3 bg-white/10 border border-white/15 text-[12px] font-bold rounded-xl">Tunda 10m</button></div></div><p class="popup-section-title">Tambah Pengingat Baru</p><div class="space-y-2.5"><input id="pengingatNama" placeholder="Nama obat, contoh: Paracetamol" class="popup-input"><div class="grid grid-cols-2 gap-2.5"><input id="pengingatDosis" placeholder="Dosis, contoh: 1 tablet" class="popup-input"><input id="pengingatJam" type="time" value="08:00" class="popup-input"></div><select id="pengingatUlang" class="popup-input"><option value="harian">🔁 Setiap Hari</option><option value="sekali">📍 Sekali Aja</option></select><input id="pengingatCatatan" placeholder="Catatan (opsional)" class="popup-input"></div><button onclick="tambahPengingat()" class="btn-primary mt-3">+ TAMBAH PENGINGAT</button><div class="grid grid-cols-2 gap-2.5 mt-2.5"><button onclick="tesNotif()" class="btn-ghost">🔔 Tes Notif</button><button onclick="berhentiSemuaBunyi()" class="btn-danger-ghost">⏹ Berhentiin Bunyi</button></div><div class="flex items-center justify-between mt-5 mb-2.5"><p class="text-[13px] font-bold text-white">Pengingat Saya (<span id="pengingatCount">0</span>)</p><button onclick="hapusSemuaPengingat()" class="text-[11.5px] text-red-300 font-semibold">Hapus Semua</button></div><div id="pengingatList" class="space-y-2.5"></div><p id="pengingatKosong" class="text-[12px] text-slate-400 text-center mt-3">Belum ada pengingat.</p><p class="text-[11px] text-slate-500 mt-4 leading-relaxed">Jangan tutup Chrome sepenuhnya agar notif tetap muncul. Di iPhone, tambahkan ke Layar Utama dulu.</p></div><div id="popup-cekantren" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Masukkan nomor antrean, kode booking, atau No. RM kamu.</p><div class="flex gap-2.5"><input id="kodeBooking" type="text" placeholder="Contoh: A-01" class="popup-input flex-1 min-w-0 uppercase"><button onclick="cekAntrean()" class="shrink-0 px-5 py-3 bg-cyan-400 text-slate-950 text-[12px] font-bold rounded-xl">CEK</button></div><div id="hasilAntrean" class="hidden mt-3 p-3.5 rounded-[14px] bg-cyan-500/10 border border-cyan-500/30 text-[12.5px] leading-relaxed"></div><p class="text-[11px] text-slate-500 mt-3">Nomor antrean ada di karcis di dashboard pasien.</p></div><div id="popup-kalkulator" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Cek BMI & tekanan darah kamu.</p><p class="popup-section-title">Berat & Tinggi</p><div class="grid grid-cols-2 gap-2.5"><input id="bb" type="number" placeholder="Berat (kg)" class="popup-input"><input id="tb" type="number" placeholder="Tinggi (cm)" class="popup-input"></div><p class="popup-section-title">Tekanan Darah</p><div class="grid grid-cols-2 gap-2.5"><input id="sistolik" type="number" placeholder="Tensi Atas (120)" class="popup-input"><input id="diastolik" type="number" placeholder="Tensi Bawah (80)" class="popup-input"></div><button onclick="hitungSehat()" class="btn-ghost mt-3">HITUNG SEKARANG</button><div id="hasilSehat" class="hidden mt-3 p-3.5 rounded-[14px] bg-white/5 border border-white/10 text-[12.5px] leading-relaxed"></div></div><div id="popup-faq" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Pertanyaan yang sering ditanyakan pasien.</p><div class="space-y-2.5"><div class="faq-item"><button onclick="this.parentElement.classList.toggle('open')" class="w-full flex items-center justify-between p-4 text-left"><span class="text-[13.5px] font-semibold text-white">Apakah harus daftar dulu?</span><span class="faq-icon text-cyan-400 font-bold text-[16px]">+</span></button><div class="faq-answer px-4"><p class="text-[12.5px] text-slate-300 pb-4 leading-relaxed">Iya, daftar dulu 1 menit pake HP. Setelah itu dapat nomor antrean.</p></div></div><div class="faq-item"><button onclick="this.parentElement.classList.toggle('open')" class="w-full flex items-center justify-between p-4 text-left"><span class="text-[13.5px] font-semibold text-white">Apakah data saya aman?</span><span class="faq-icon text-cyan-400 font-bold text-[16px]">+</span></button><div class="faq-answer px-4"><p class="text-[12.5px] text-slate-300 pb-4 leading-relaxed">Aman. Data hanya bisa dilihat dokter yang menangani kamu.</p></div></div></div></div><div id="popup-info-obat" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Info obat umum - bukan resep. Selalu ikuti dosis dokter.</p><div class="space-y-2.5"><div class="faq-item"><button onclick="this.parentElement.classList.toggle('open')" class="w-full flex items-center justify-between p-4 text-left"><span class="text-[13.5px] font-semibold text-white">Paracetamol - buat apa?</span><span class="faq-icon text-cyan-400 font-bold text-[16px]">+</span></button><div class="faq-answer px-4"><p class="text-[12.5px] text-slate-300 pb-4 leading-relaxed">Untuk demam & nyeri ringan. Ikuti dosis di label / resep dokter.</p></div></div><div class="faq-item"><button onclick="this.parentElement.classList.toggle('open')" class="w-full flex items-center justify-between p-4 text-left"><span class="text-[13.5px] font-semibold text-white">Antibiotik - harus habis?</span><span class="faq-icon text-cyan-400 font-bold text-[16px]">+</span></button><div class="faq-answer px-4"><p class="text-[12.5px] text-slate-300 pb-4 leading-relaxed">Iya, habiskan sesuai resep dokter walau sudah merasa sembuh.</p></div></div><div class="faq-item"><button onclick="this.parentElement.classList.toggle('open')" class="w-full flex items-center justify-between p-4 text-left"><span class="text-[13.5px] font-semibold text-white">Obat harus sesudah makan?</span><span class="faq-icon text-cyan-400 font-bold text-[16px]">+</span></button><div class="faq-answer px-4"><p class="text-[12.5px] text-slate-300 pb-4 leading-relaxed">Tergantung obatnya. Cek di label / tanya apoteker.</p></div></div></div><button onclick="bukaPopup('popup-pengingat')" class="btn-primary mt-4">💊 Atur Pengingat Obat →</button></div><div id="popup-darurat" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Butuh bantuan cepat? Hubungi nomor di bawah.</p><a href="tel:119" class="popup-card block text-center !p-5 !border-red-500/30"><p class="text-[11px] font-bold tracking-widest text-red-300">AMBULANS • GRATIS • 24 JAM</p><p class="text-[28px] font-extrabold text-white mt-1.5 tracking-tight">119</p><p class="text-[11.5px] text-slate-400 mt-1">Ketuk untuk menelepon</p></a><p class="text-[11px] text-slate-500 mt-3 text-center leading-relaxed">Untuk nomor IGD klinik, hubungi klinik langsung melalui menu Lokasi.</p></div><div id="popup-artikel" class="popup-content"><div id="artikelListView"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Edukasi & tips kesehatan dari KlinikQue.</p><div id="artikelList" class="space-y-2.5"></div></div><div id="artikelDetailView" class="hidden"><button onclick="kembaliKeDaftarArtikel()" class="mb-4 px-3.5 py-2 bg-white/10 border border-white/15 rounded-full text-[11.5px] font-bold">← Kembali</button><p id="artikelDetailKategori" class="text-[11px] text-cyan-400 font-bold mb-1 tracking-widest">KESEHATAN</p><h2 id="artikelDetailJudul" class="text-[19px] font-extrabold text-white mb-2 leading-snug">Judul</h2><p id="artikelDetailMeta" class="text-[11.5px] text-slate-400 mb-3">KlinikQue</p><img id="artikelDetailGambar" src="" class="w-full h-44 object-cover rounded-2xl mb-4 hidden"><div id="artikelDetailIsi" class="artikel-isi-full text-[13.5px] text-slate-200"></div><div class="mt-6 p-4 bg-white/5 border border-white/10 rounded-2xl"><p class="text-[10px] font-bold tracking-widest text-slate-400 mb-1">SUMBER</p><p id="artikelDetailSumber" class="text-[12.5px] text-slate-200">-</p><a id="artikelDetailLink" href="#" target="_blank" class="inline-block mt-2 text-[12px] font-bold text-cyan-300 underline">🔗 Buka Sumber Asli →</a></div></div></div><div id="popup-statistik" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Ringkasan aktivitas KlinikQue.</p><div class="grid grid-cols-3 gap-2.5 text-center"><div class="popup-card"><p id="statPasien" class="text-[22px] font-extrabold text-cyan-400 leading-none">0</p><p class="text-[11px] text-slate-300 mt-1.5">Pasien Terlayani</p></div><div class="popup-card"><p id="statDokter" class="text-[22px] font-extrabold text-cyan-400 leading-none">0</p><p class="text-[11px] text-slate-300 mt-1.5">Dokter Mitra</p></div><div class="popup-card"><p id="statAntreanAktif" class="text-[22px] font-extrabold text-cyan-400 leading-none">0</p><p class="text-[11px] text-slate-300 mt-1.5">Antrean Aktif</p></div></div><p class="text-[11px] text-slate-500 mt-3 text-center">Data dihitung dari antrean & dokter yang terdaftar.</p></div><div id="popup-lokasi" class="popup-content"><p class="text-[13px] text-slate-300 leading-relaxed mb-3">Cari klinik terdekat & buka navigasi.</p><div class="flex gap-2.5 mb-3"><button onclick="aktifkanGPS()" class="flex-1 py-3 bg-cyan-400 text-slate-950 rounded-xl text-[12px] font-bold">📍 Pakai Lokasi Saya</button><button onclick="renderLokasi()" class="px-4 py-3 bg-white/10 border border-white/15 rounded-xl text-[12px] font-bold">🔄</button></div><input id="cariLokasi" type="text" placeholder="Cari nama klinik / dokter / daerah..." oninput="renderLokasi()" class="popup-input mb-3"><div id="lokasiList" class="space-y-2.5"></div><p class="text-[11px] text-slate-500 mt-4 text-center">Klik kartu klinik untuk buka Google Maps.</p></div><button onclick="tutupPopup()" class="btn-ghost mt-5">TUTUP</button></div></div>
+<script>
+(function(){
+  if(!('serviceWorker' in navigator) || !('Notification' in window)) return;
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const isSecure = window.isSecureContext || isLocal;
+  if(!isSecure) return;
+  const swCode = `
+    self.addEventListener('notificationclick', function(e){
+      e.notification.close();
+      e.waitUntil(clients.matchAll({type:'window', includeUncontrolled:true}).then(function(list){
+        if(list.length) return list[0].focus();
+        return clients.openWindow('./');
+      }));
+    });
+  `;
+  try{
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  }catch(e){}
+})();
+</script>
+<script type="module" src="firebase/firebase-init.js"></script>
+<script type="module">
+import { collection, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function el(id){return document.getElementById(id);}
+function getDB(){ return window.dbOnline || (window.fb && window.fb.db) || null; }
+function tungguDB(){ return new Promise(res=>{ let n=0; const iv=setInterval(()=>{ const db=getDB(); if(db){ clearInterval(iv); res(db); } else if(n++>50){ clearInterval(iv); res(null); } },100); }); }
+let iklanListData=[],artikelListData=[],dokterListData=[],antreanListData=[];
+let posisiPasien=null,iklanIdx=0,db=null;
+let serverOffsetMs = 0, serverTersinkron = false, lastSyncAt = 0, antreanAktifCount = 0;
+function getServerNow(){ return new Date(Date.now() + serverOffsetMs); }
+let toastTimer=null;
+function showToast(msg){
+  const t=el('toastMini'); if(!t){ return; }
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'), 2500);
+}
+function showConfirm(msg){ return confirm(msg); }
+async function sinkronJamServer(){
+  try{
+    const t0 = Date.now();
+    const r = await fetch('https://worldtimeapi.org/api/timezone/Asia/Jakarta');
+    const j = await r.json();
+    const t1 = Date.now();
+    const rtt = (t1 - t0) / 2;
+    const serverMs = new Date(j.datetime).getTime() + rtt;
+    serverOffsetMs = serverMs - Date.now();
+    serverTersinkron = true; lastSyncAt = Date.now();
+  }catch(e){ serverTersinkron = false; }
+}
+function renderJamRealtime(){
+  const now = getServerNow();
+  const hh = String(now.getHours()).padStart(2,'0'), mm = String(now.getMinutes()).padStart(2,'0'), ss = String(now.getSeconds()).padStart(2,'0');
+  const jamEl = el('jamRealtime'); if(jamEl) jamEl.textContent = hh+':'+mm;
+  const detEl = el('jamDetik'); if(detEl) detEl.textContent = ':'+ss;
+  const tglEl = el('tanggalRealtime'); if(tglEl){
+    const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][now.getDay()];
+    const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][now.getMonth()];
+    tglEl.textContent = `${hari}, ${now.getDate()} ${bulan} ${now.getFullYear()}`;
+  }
+  const line = el('jamStatusLine');
+  if(line){
+    const parts = [];
+    const adaBuka = dokterListData.some(k=>k._statusBuka && k._statusBuka.buka);
+    if(dokterListData.length===0 || adaBuka) parts.push('● BUKA');
+    if(serverTersinkron) parts.push('Sinkron Server');
+    if(antreanAktifCount > 0) parts.push(antreanAktifCount + ' Antrean');
+    line.textContent = parts.join(' • ');
+    line.style.display = parts.length ? 'block' : 'none';
+  }
+  if(Date.now() - lastSyncAt > 5*60*1000 && serverTersinkron){ sinkronJamServer(); }
+}
+sinkronJamServer();
+setInterval(renderJamRealtime, 1000);
+renderJamRealtime();
+function loadPengingat(){ try{ return JSON.parse(localStorage.getItem('kq_pengingat_obat')||'[]'); }catch(e){ return []; } }
+function savePengingat(list){ localStorage.setItem('kq_pengingat_obat', JSON.stringify(list)); }
+function loadBunyiAktif(){ try{ return JSON.parse(localStorage.getItem('kq_pengingat_bunyi')||'[]'); }catch(e){ return []; } }
+function saveBunyiAktif(list){ localStorage.setItem('kq_pengingat_bunyi', JSON.stringify(list)); }
+let timerBunyi = {};
+function updateNotifBanner(){
+  const st = ('Notification' in window) ? Notification.permission : 'unsupported';
+  const label = el('pengingatNotifStatus'); const btn = el('pengingatNotifBtn');
+  if(!label||!btn) return;
+  if(st==='granted'){ label.textContent='✅ Aktif - Notif akan muncul pas jamnya tiba'; label.style.color='#86efac'; btn.textContent='AKTIF ✅'; btn.className='shrink-0 px-3.5 py-2 bg-green-400 text-slate-950 text-[11px] font-bold rounded-lg'; }
+  else if(st==='denied'){ label.textContent='❌ Ditolak - Buka Setting Chrome > Izin Situs > Notifikasi > Izinkan'; label.style.color='#fca5a5'; btn.textContent='CARA AKTIFIN'; btn.className='shrink-0 px-3.5 py-2 bg-red-400 text-slate-950 text-[11px] font-bold rounded-lg'; }
+  else { label.textContent='Belum aktif - pencet tombol di kanan'; label.style.color='#fde68a'; btn.textContent='IZINKAN'; btn.className='shrink-0 px-3.5 py-2 bg-amber-400 text-slate-950 text-[11px] font-bold rounded-lg'; }
+}
+window.mintaIzinNotif = async ()=>{
+  if(!('Notification' in window)){ showToast('HP ini tidak dukung notifikasi. Coba pakai Chrome Android.'); return; }
+  const p = await Notification.requestPermission();
+  updateNotifBanner();
+  if(p==='granted'){ tesNotif(); } else if(p==='denied'){ showToast('Notifikasi ditolak. Buka Setting Chrome > Izin Situs > Notifikasi > Izinkan.'); }
+};
+function bunyiNotif(panjang=1){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    for(let i=0;i<2*panjang;i++){
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=880;
+      const t = ctx.currentTime + i*0.7;
+      g.gain.setValueAtTime(0.001, t); g.gain.exponentialRampToValueAtTime(0.5, t+0.05); g.gain.exponentialRampToValueAtTime(0.001, t+0.5);
+      o.start(t); o.stop(t+0.6);
+    }
+  }catch(e){}
+  try{ if(navigator.vibrate) navigator.vibrate([300,100,300,100,300]); }catch(e){}
+}
+async function kirimNotifWA(p, keBerapa=1){
+  const judul = keBerapa===1 ? '💊 Waktunya Minum Obat - KlinikQue' : `💊 Belum Minum Obat? (${keBerapa}x) - KlinikQue`;
+  const isi = keBerapa===1 ? `${p.nama} - ${p.dosis || ''}${p.catatan ? ' • ' + p.catatan : ''}` : `${p.nama} - ${p.dosis || ''} - Belum diminum ${keBerapa}x, klik Sudah Minum biar berhenti`;
+  bunyiNotif(Math.min(keBerapa,3));
+  updateBannerBunyi();
+  if('Notification' in window && Notification.permission==='granted'){
+    try{
+      if('serviceWorker' in navigator && window.isSecureContext){
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(judul, { body: isi, icon: 'logo-klinikque.png', badge: 'logo-klinikque.png', tag: 'kq-obat-'+p.id, requireInteraction: true, vibrate: [200,100,200,100,200], actions: [{action:'minum', title:'✅ Sudah Minum'}, {action:'tunda', title:'⏰ Tunda 10 Menit'}], data: { id: p.id } });
+        return true;
+      }
+    }catch(e){}
+  }
+  bukaPopup('popup-pengingat');
+  return false;
+}
+function mulaiLoopBunyi(p){
+  if(timerBunyi[p.id]) return;
+  let aktif = loadBunyiAktif();
+  if(!aktif.find(x=>String(x.id)===String(p.id))){
+    aktif.push({id:p.id, mulai: Date.now(), hitung: 1});
+    saveBunyiAktif(aktif);
+  }
+  updateBannerBunyi();
+  renderPengingat();
+  let hitung = aktif.find(x=>String(x.id)===String(p.id))?.hitung || 1;
+  timerBunyi[p.id] = setInterval(()=>{
+    const list = loadPengingat();
+    const masihAda = list.find(x=>String(x.id)===String(p.id));
+    if(!masihAda || !masihAda.aktif){ berhentiLoopBunyi(p.id); return; }
+    const bunyiList = loadBunyiAktif();
+    const b = bunyiList.find(x=>String(x.id)===String(p.id));
+    if(!b){ berhentiLoopBunyi(p.id); return; }
+    b.hitung = (b.hitung||1)+1; saveBunyiAktif(bunyiList);
+    hitung = b.hitung;
+    kirimNotifWA(masihAda, hitung);
+    updateBannerBunyi();
+    renderPengingat();
+    if(hitung >= 30){ berhentiLoopBunyi(p.id); showToast('Pengingat '+masihAda.nama+' berhenti otomatis setelah 60 menit.'); }
+  }, 2*60*1000);
+  kirimNotifWA(p, hitung);
+}
+function berhentiLoopBunyi(id){
+  if(timerBunyi[id]){ clearInterval(timerBunyi[id]); delete timerBunyi[id]; }
+  let aktif = loadBunyiAktif().filter(x=>String(x.id)!==String(id));
+  saveBunyiAktif(aktif);
+  updateBannerBunyi();
+  renderPengingat();
+}
+window.berhentiSemuaBunyi = ()=>{
+  Object.keys(timerBunyi).forEach(id=>{ clearInterval(timerBunyi[id]); });
+  timerBunyi = {};
+  saveBunyiAktif([]);
+  updateBannerBunyi();
+  renderPengingat();
+  showToast('Semua bunyi dihentikan.');
+};
+window.tundaSemuaBunyi = (menit)=>{
+  const aktif = loadBunyiAktif();
+  if(!aktif.length) return;
+  aktif.forEach(b=>{ window.tundaPengingat(b.id, menit); });
+  window.berhentiSemuaBunyi();
+};
+function updateBannerBunyi(){
+  const banner = el('pengingatAktifBanner');
+  const teks = el('pengingatAktifText');
+  const btn = el('pengingatAktifMinumBtn');
+  if(!banner) return;
+  const aktif = loadBunyiAktif();
+  const list = loadPengingat();
+  if(!aktif.length){ banner.classList.add('hidden'); return; }
+  banner.classList.remove('hidden');
+  const namaList = aktif.map(a=>{
+    const p = list.find(x=>String(x.id)===String(a.id));
+    return p ? `${p.nama} (${p.jam} - sudah bunyi ${a.hitung||1}x)` : 'Obat';
+  }).join(', ');
+  if(teks) teks.textContent = namaList;
+  if(btn){
+    btn.onclick = ()=>{
+      if(aktif.length===1){ window.sudahMinum(aktif[0].id); }
+      else { showToast('Ada beberapa obat yang bunyi. Klik Sudah Minum di list bawah satu-satu.'); }
+    };
+  }
+}
+function pulihkanLoopBunyi(){
+  const aktif = loadBunyiAktif();
+  const list = loadPengingat();
+  aktif.forEach(a=>{
+    const p = list.find(x=>String(x.id)===String(a.id));
+    if(p && p.aktif){
+      if(!timerBunyi[p.id]){
+        timerBunyi[p.id] = setInterval(()=>{
+          const l2 = loadPengingat();
+          const m = l2.find(x=>String(x.id)===String(p.id));
+          if(!m || !m.aktif){ berhentiLoopBunyi(p.id); return; }
+          const bl = loadBunyiAktif(); const bb = bl.find(x=>String(x.id)===String(p.id));
+          if(!bb){ berhentiLoopBunyi(p.id); return; }
+          bb.hitung = (bb.hitung||1)+1; saveBunyiAktif(bl);
+          kirimNotifWA(m, bb.hitung);
+          updateBannerBunyi(); renderPengingat();
+          if(bb.hitung>=30) berhentiLoopBunyi(p.id);
+        }, 2*60*1000);
+      }
+    } else {
+      saveBunyiAktif(loadBunyiAktif().filter(x=>String(x.id)!==String(a.id)));
+    }
+  });
+  updateBannerBunyi();
+}
+window.tesNotif = ()=>{
+  const p = {id:'tes', nama:'Pengingat (TES)', dosis:'1 tablet', catatan:'Notif kamu sudah aktif - akan bunyi tiap 2 menit sampai Sudah Minum'};
+  mulaiLoopBunyi(p);
+  showToast('TES dimulai - akan bunyi tiap 2 menit sampai Sudah Minum.');
+};
+window.tambahPengingat = ()=>{
+  const nama = el('pengingatNama').value.trim();
+  const dosis = el('pengingatDosis').value.trim();
+  const jam = el('pengingatJam').value;
+  const ulang = el('pengingatUlang').value;
+  const catatan = el('pengingatCatatan').value.trim();
+  if(!nama){ showToast('Isi nama obat dulu'); return; }
+  if(!jam){ showToast('Pilih jam minum obat dulu'); return; }
+  const list = loadPengingat();
+  list.push({ id: Date.now().toString(), nama, dosis: dosis||'Sesuai dosis dokter', jam, ulang, catatan, aktif: true, terakhirBunyi: '' });
+  savePengingat(list);
+  el('pengingatNama').value=''; el('pengingatDosis').value=''; el('pengingatCatatan').value='';
+  renderPengingat();
+  if(Notification.permission!=='granted'){ if(showConfirm('Pengingat disimpan ✅\nMau aktifin notif sekarang?')) mintaIzinNotif(); }
+  else { showToast('Pengingat disimpan - nanti jam '+jam+' HP bunyi tiap 2 menit sampai Sudah Minum.'); }
+};
+window.togglePengingat = (id)=>{
+  const list = loadPengingat(); const p = list.find(x=>String(x.id)===String(id)); if(p) p.aktif = !p.aktif;
+  if(p && !p.aktif) berhentiLoopBunyi(id);
+  savePengingat(list); renderPengingat();
+};
+window.hapusPengingat = (id)=>{
+  if(!showConfirm('Hapus pengingat ini?')) return;
+  berhentiLoopBunyi(id);
+  savePengingat(loadPengingat().filter(x=>String(x.id)!==String(id))); renderPengingat();
+};
+window.hapusSemuaPengingat = ()=>{
+  if(!showConfirm('Hapus semua pengingat obat?')) return;
+  window.berhentiSemuaBunyi();
+  savePengingat([]); renderPengingat();
+};
+window.tundaPengingat = (id, menit)=>{
+  berhentiLoopBunyi(id);
+  const list = loadPengingat(); const p = list.find(x=>String(x.id)===String(id)); if(!p) return;
+  const now = getServerNow(); now.setMinutes(now.getMinutes()+menit);
+  p.jam = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  p.terakhirBunyi = '';
+  savePengingat(list); renderPengingat();
+  showToast('Ditunda '+menit+' menit → jadi jam '+p.jam);
+};
+window.sudahMinum = (id)=>{
+  berhentiLoopBunyi(id);
+  if(String(id)==='tes'){ showToast('TES berhenti - Sudah Minum diklik'); renderPengingat(); return; }
+  const list = loadPengingat(); const p = list.find(x=>String(x.id)===String(id)); if(!p) return;
+  const now = getServerNow(); p.terakhirBunyi = now.toISOString().slice(0,10)+'_'+p.jam+'_minum';
+  savePengingat(list); renderPengingat();
+  showToast('Mantap ✅ '+p.nama+' sudah diminum - Bunyi berhenti.');
+};
+function renderPengingat(){
+  const list = loadPengingat();
+  const w = el('pengingatList'); if(!w) return;
+  el('pengingatCount').textContent = list.length;
+  el('pengingatKosong').style.display = list.length ? 'none' : 'block';
+  updateNotifBanner();
+  updateBannerBunyi();
+  if(!list.length){ w.innerHTML=''; return; }
+  const bunyiAktif = loadBunyiAktif();
+  w.innerHTML = list.map(p=>{
+    const lagiBunyi = bunyiAktif.find(x=>String(x.id)===String(p.id));
+    const hitungBunyi = lagiBunyi ? (lagiBunyi.hitung||1) : 0;
+    return `<div class="popup-card !p-3.5 flex items-center gap-3 ${lagiBunyi?'pengingat-bunyi':''}"><div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-[18px] shrink-0">💊</div><div class="flex-1 min-w-0"><p class="text-[13.5px] font-bold text-white truncate">${esc(p.nama)}</p><p class="text-[11.5px] text-cyan-200 mt-0.5">${esc(p.jam)} WIB • ${esc(p.dosis)} • ${p.ulang==='harian'?'Setiap Hari':'Sekali Aja'}</p>${p.catatan?`<p class="text-[11px] text-slate-300 truncate mt-0.5">📝 ${esc(p.catatan)}</p>`:''}${lagiBunyi?`<p class="text-[11px] text-amber-300 font-bold mt-1">🔔 LAGI BUNYI - Sudah ${hitungBunyi}x (tiap 2 menit)</p>`:`<p class="text-[10.5px] ${p.aktif?'text-green-300':'text-slate-400'} font-bold mt-1">${p.aktif?'● AKTIF':'○ NONAKTIF'}</p>`}</div><div class="flex flex-col items-end gap-2 shrink-0"><div class="switch ${p.aktif?'on':''}" onclick="togglePengingat('${esc(p.id)}')"><span>${p.aktif?'ON':'OFF'}</span></div><div class="flex gap-1"><button onclick="sudahMinum('${esc(p.id)}')" class="px-2.5 py-1.5 bg-green-500 text-slate-950 text-[10px] font-bold rounded-lg">SUDAH MINUM</button><button onclick="tundaPengingat('${esc(p.id)}',10)" class="px-2.5 py-1.5 bg-white/10 border border-white/15 text-[10px] font-bold rounded-lg">TUNDA 10M</button><button onclick="hapusPengingat('${esc(p.id)}')" class="px-2 py-1.5 bg-red-500/15 border border-red-400/30 text-red-200 text-[10px] font-bold rounded-lg">✕</button></div></div></div>`;
+  }).join('');
+}
+function cekPengingatJatuhTempo(){
+  const list = loadPengingat(); if(!list.length) return;
+  const now = getServerNow();
+  const jamNow = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const hariIni = now.toISOString().slice(0,10);
+  let berubah = false;
+  for(const p of list){
+    if(!p.aktif) continue;
+    if(p.jam !== jamNow) continue;
+    const kunci = hariIni+'_'+p.jam;
+    if(p.terakhirBunyi === kunci || p.terakhirBunyi === kunci+'_minum') continue;
+    if(loadBunyiAktif().find(x=>String(x.id)===String(p.id))) continue;
+    p.terakhirBunyi = kunci; berubah = true;
+    mulaiLoopBunyi(p);
+  }
+  if(berubah){ savePengingat(list); renderPengingat(); }
+}
+setInterval(cekPengingatJatuhTempo, 20000);
+renderPengingat();
+pulihkanLoopBunyi();
+async function geocodeAlamat(alamat){
+  if(!alamat) return null;
+  window.__geoCache = window.__geoCache || {};
+  if(window.__geoCache[alamat]) return window.__geoCache[alamat];
+  try{
+    const q=encodeURIComponent(alamat+", Ciparay, Bandung, Jawa Barat, Indonesia");
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${q}`,{headers:{'Accept':'application/json'}});
+    const j=await r.json();
+    if(j && j[0]){ const res={lat:parseFloat(j[0].lat), lng:parseFloat(j[0].lon), dariGeocode:true}; window.__geoCache[alamat]=res; return res; }
+  }catch(e){}
+  return null;
+}
+function jamKeMenit(s){ const m=String(s||"").match(/(\d{1,2})[:.](\d{2})/); if(!m) return null; return parseInt(m[1])*60+parseInt(m[2]); }
+function cekBukaTutup(d){
+  const manual = d.isPracticeActive ?? d.isBuka ?? d.buka ?? d.isOpen ?? d.online ?? d.aktifOnline;
+  if(manual===false) return {buka:false, alasan:"TUTUP - Dokter mematikan praktik dari dashboard", jamBuka:d.jamBuka||"", jamTutup:d.jamTutup||""};
+  if(d.darurat) return {buka:false, alasan:"DARURAT: "+d.darurat, jamBuka:d.jamBuka||"", jamTutup:d.jamTutup||""};
+  if(d.cuti){
+    const cs=String(d.cuti); if(cs.includes("s/d")){
+      const p=cs.split(" s/d "); const s=new Date(p[0].trim()), e=new Date(p[1].trim()), t=getServerNow(); t.setHours(0,0,0,0); s.setHours(0,0,0,0); e.setHours(0,0,0,0);
+      if(t>=s&&t<=e) return {buka:false, alasan:"CUTI: "+d.cuti, jamBuka:d.jamBuka||"", jamTutup:d.jamTutup||""};
+    } else {
+      return {buka:false, alasan:"CUTI: "+d.cuti, jamBuka:d.jamBuka||"", jamTutup:d.jamTutup||""};
+    }
+  }
+  const st=String(d.status||d.statusBuka||"").toLowerCase();
+  if(st==="tutup"||st==="darurat"||st==="cuti") return {buka:false, alasan:"Tutup - "+(d.status||"Libur"), jamBuka:d.jamBuka||"", jamTutup:d.jamTutup||""};
+  if(st==="buka") return {buka:true, alasan:"Buka sekarang", jamBuka:d.jamBuka||"", jamTutup:d.jamTutup||""};
+  const now=getServerNow(); const menitNow=now.getHours()*60+now.getMinutes(); const hariNow=now.getDay();
+  const libur = d.hariLibur || d.libur || d.tutupHari || "";
+  const namaHari=["minggu","senin","selasa","rabu","kamis","jumat","sabtu"][hariNow];
+  if(String(libur).toLowerCase().includes(namaHari)) return {buka:false, alasan:"Libur hari "+namaHari, jamBuka:d.jamBuka||"", jamTutup:d.jamTutup||""};
+  let jamBuka = d.jamBuka || d.jamMulai || d.open || "";
+  let jamTutup = d.jamTutup || d.jamSelesai || d.close || "";
+  if(!jamBuka && d.jam){ const parts=String(d.jam).split(/[-–~]/); if(parts.length>=2){ jamBuka=parts[0].trim(); jamTutup=parts[1].trim(); } }
+  const mBuka=jamKeMenit(jamBuka), mTutup=jamKeMenit(jamTutup);
+  if(mBuka==null || mTutup==null) return {buka:true, alasan:"Buka - jam tidak diatur", jamBuka:jamBuka||"", jamTutup:jamTutup||""};
+  let buka=false;
+  if(mBuka < mTutup){ buka = menitNow>=mBuka && menitNow < mTutup; }
+  else { buka = menitNow>=mBuka || menitNow < mTutup; }
+  if(buka) return {buka:true, alasan:"Buka • Tutup jam "+jamTutup, jamBuka, jamTutup};
+  if(menitNow < mBuka) return {buka:false, alasan:"Tutup • Buka jam "+jamBuka, jamBuka, jamTutup};
+  return {buka:false, alasan:"Tutup • Buka lagi besok jam "+jamBuka, jamBuka, jamTutup};
+}
+function getFotoDokter(k){ return String(k.avatar||k.foto||k.photoURL||k.fotoProfil||k.profilePic||k.image||k.fotoDokter||k.fotoUrl||"").trim(); }
+function avatarHTML(k){
+  const foto=getFotoDokter(k);
+  const dot=`<span class="${k._statusBuka&&k._statusBuka.buka?'dot-hidup':'dot-mati'} absolute -bottom-0.5 -right-0.5 border-2 border-slate-900 rounded-full"></span>`;
+  if(foto) return `<div class="relative shrink-0"><img src="${esc(foto)}" class="avatar-dokter" alt="${esc(k.nama)}" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="avatar-fallback" style="display:none">👩‍⚕️</div>${dot}</div>`;
+  const isCewe = /wanti|sari|dewi|putri|ayu|rina|nina|maya|tuti|wati|ayu/i.test(k.nama||"") || String(k.jenisKelamin||k.gender||"").toLowerCase().includes("perempuan") || String(k.jenisKelamin||k.gender||"").toLowerCase().includes("wanita");
+  const ikon = isCewe ? "👩‍⚕️" : "👨‍⚕️";
+  return `<div class="relative shrink-0"><div class="avatar-fallback">${ikon}</div>${dot}</div>`;
+}
+function namaLengkap(k){
+  let n=(k.nama||"").trim();
+  if(!n) return "Dokter KlinikQue";
+  if(/^dr\.?/i.test(n)) return n;
+  return "dr. "+n;
+}
+async function cariDokter(){
+  db=getDB();
+  if(!db){ renderLokasi(); renderDokterHome(); return []; }
+  try{
+    const snap=await getDocs(collection(db,"dokter"));
+    let list=snap.docs.map(d=>({id:d.id,_koleksi:"dokter",...d.data()}));
+    list = list.filter(d => !d.status || d.status === 'approved' || d.status === 'Buka' || d.status === 'Tutup');
+    let normal=list.map(d=>({ id:d.id,_koleksi:d._koleksi, raw:d, nama:d.nama||d.namaDokter||d.name||d.displayName||d.namaLengkap||"Dokter KlinikQue", namaKlinik:d.namaKlinik||d.klinik||"KlinikQue", alamat:d.alamat||d.alamatKlinik||d.address||d.lokasi||"", lat:d.lat??d.latitude??d.lokasiLat??null, lng:d.lng??d.longitude??d.lokasiLng??null, spesialis:d.spesialis||d.specialist||d.spesialisasi||d.poli||"Dokter Umum", jam:d.jam||d.jamPraktek||"Setiap Hari, 08.00 - 20.00 WIB", jamBuka:d.jamBuka||d.jamMulai||"", jamTutup:d.jamTutup||d.jamSelesai||"", status:d.status||d.statusBuka||"", isBuka:d.isBuka??d.buka??d.isOpen??d.online, isPracticeActive:d.isPracticeActive, darurat:d.darurat||"", cuti:d.cuti||"", hariLibur:d.hariLibur||d.libur||"", jenisKelamin:d.jenisKelamin||d.gender||"", telepon:d.telepon||d.noHp||d.phone||d.hp||"", email:d.email||"", avatar:d.avatar||d.foto||d.photoURL||d.fotoProfil||d.profilePic||d.image||d.fotoDokter||d.fotoUrl||"" }));
+    for(const k of normal){
+      k._statusBuka = cekBukaTutup(k);
+      if((!k.lat || !k.lng) && k.alamat){
+        const g=await geocodeAlamat(k.alamat);
+        if(g){ k.lat=g.lat; k.lng=g.lng; k._dariGeocode=true; }
+      }
+    }
+    dokterListData=normal;
+  }catch(e){ console.log(e); }
+  renderDokterHome();
+  return dokterListData;
+}
+function renderDokterHome(){
+  const w=el('dokterHomeList'); if(!w) return;
+  if(!dokterListData.length){ w.innerHTML=`<div style="height:70px;display:flex;align-items:center;justify-content:center"><p class="text-[11px] text-slate-300">Belum ada dokter mitra.</p></div>`; return; }
+  w.innerHTML=dokterListData.map(k=>{
+    const st=k._statusBuka||{buka:true,alasan:"Buka"};
+    const badge=st.buka?`<span class="badge-buka on"><span class="dot-hidup"></span>BUKA</span>`:`<span class="badge-buka off"><span class="dot-mati"></span>TUTUP</span>`;
+    return `<div class="dokter-card-horizontal">${avatarHTML(k)}<div class="dokter-teks"><div class="flex items-center justify-between gap-2"><p class="dokter-nama">${esc(namaLengkap(k))}</p>${badge}</div><p class="dokter-sub">${esc(k.spesialis)} • ${esc(k.namaKlinik)}</p><p class="dokter-alamat">${esc(k.alamat||"-")} • ${esc(k.jam)}</p><p class="dokter-status ${st.buka?'text-green-200':'text-red-200'}">${esc(st.alasan)}</p></div></div>`;
+  }).join('');
+  renderDokterSemua();
+}
+function renderDokterSemua(){
+  const w=el('dokterSemuaList'); if(!w) return;
+  if(!dokterListData.length){ w.innerHTML=`<p class="text-xs text-slate-300 text-center">Belum ada dokter.</p>`; return; }
+  w.innerHTML=dokterListData.map(k=>{
+    const st=k._statusBuka||{buka:true,alasan:"Buka"}; const badge=st.buka?`<span class="badge-buka on"><span class="dot-hidup"></span> BUKA</span>`:`<span class="badge-buka off"><span class="dot-mati"></span> TUTUP</span>`;
+    return `<div class="popup-card flex items-center gap-3">${avatarHTML(k)}<div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2"><p class="font-bold text-[14px] text-white truncate">${esc(namaLengkap(k))}</p>${badge}</div><p class="text-[11px] text-cyan-300 mt-0.5">${esc(k.spesialis)} • ${esc(k.namaKlinik)}</p><p class="text-[11px] text-slate-300 mt-0.5">📍 ${esc(k.alamat||"-")}</p><p class="text-[11px] text-slate-300 mt-0.5">🕐 ${esc(k.jam)} • ${esc(st.alasan)}</p></div></div>`;
+  }).join('');
+}
+async function loadFirebase(){
+  db=await tungguDB();
+  if(!db){ renderIklan(); renderArtikelList(); renderLokasi(); renderDokterHome(); return; }
+  const aman=(fn)=>{ try{ fn(); }catch(e){} };
+  aman(()=>onSnapshot(collection(db,"iklan"), s=>{ iklanListData=s.docs.map(d=>({id:d.id,...d.data()})); renderIklan(); }, ()=>{}));
+  aman(()=>onSnapshot(collection(db,"artikel"), s=>{ artikelListData=s.docs.map(d=>({id:d.id,...d.data()})); renderArtikelList(); }, ()=>{}));
+  aman(()=>onSnapshot(collection(db,"antrian"), s=>{ antreanListData=s.docs.map(d=>({id:d.id,...d.data()})); updateStatistik(); antreanAktifCount = antreanListData.filter(a=>String(a.status||'').toLowerCase().includes('tunggu')||String(a.status||'').toLowerCase().includes('antri')||!a.status).length; renderJamRealtime(); }, ()=>{}));
+  aman(()=>onSnapshot(collection(db,"dokter"), async s=>{ await cariDokter(); updateStatistik(); renderLokasi(); renderJamRealtime(); }, ()=>{}));
+  await cariDokter(); updateStatistik(); renderLokasi(); renderJamRealtime();
+  setInterval(()=>{ dokterListData.forEach(k=>{ k._statusBuka=cekBukaTutup(k); }); renderLokasi(); renderDokterHome(); renderJamRealtime(); },30000);
+}
+function renderIklan(){ const w=el('iklanWrap'), d=el('iklanDots'); w.innerHTML=""; d.innerHTML=""; if(!iklanListData.length){ w.innerHTML=`<div class="w-full h-full flex items-center justify-center"><p class="text-[11px] text-slate-200">Belum ada info dari klinik.</p></div>`; return; } iklanListData.forEach((ik,i)=>{ const div=document.createElement('div'); const gambar=ik.gambar||ik.image||ik.foto||""; if(gambar){ div.className='iklan-slide '+(i===0?'active':''); div.style.position='relative'; div.innerHTML=`<img src="${esc(gambar)}" class="w-full h-full object-cover absolute inset-0"><div class="absolute inset-0 bg-black/30"></div><div class="relative flex-1 min-w-0 overflow-hidden"><p class="text-[9px] font-bold tracking-widest text-white/90 truncate">${esc(ik.label||'')}</p><p class="text-[12.5px] font-extrabold text-white truncate leading-tight">${esc(ik.judul||'')}</p><p class="text-[10.5px] text-white/90 truncate leading-tight">${esc(ik.deskripsi||ik.teks||'')}</p></div>`; } else { div.className='iklan-slide bg-gradient-to-r '+(ik.warna||'from-cyan-500 to-blue-600')+(i===0?' active':''); div.innerHTML=`<div class="text-xl shrink-0">${esc(ik.emoji||'📢')}</div><div class="flex-1 min-w-0 overflow-hidden"><p class="text-[9px] font-bold tracking-widest truncate">${esc(ik.label||'')}</p><p class="text-[12.5px] font-extrabold text-white truncate leading-tight">${esc(ik.judul||'')}</p><p class="text-[10.5px] text-white/90 truncate leading-tight">${esc(ik.deskripsi||ik.teks||'')}</p></div>`; } w.appendChild(div); const dot=document.createElement('span'); dot.className='iklan-dot'+(i===0?' active':''); d.appendChild(dot); }); }
+setInterval(()=>{ const s=document.querySelectorAll('.iklan-slide'), dd=document.querySelectorAll('.iklan-dot'); if(!s.length) return; s.forEach(x=>x.classList.remove('active')); dd.forEach(x=>x.classList.remove('active')); iklanIdx=(iklanIdx+1)%s.length; s[iklanIdx].classList.add('active'); if(dd[iklanIdx]) dd[iklanIdx].classList.add('active'); },4000);
+function rapikan(t){ if(!t) return ''; return t.split('\n').map(p=>p.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join(''); }
+function renderArtikelList(){ const w=el('artikelList'); if(!w) return; w.innerHTML=''; if(!artikelListData.length){ w.innerHTML=`<div class="popup-card text-center"><p class="text-[13px] font-bold text-white">Belum ada artikel</p><p class="text-[11px] text-slate-400 mt-1">Artikel akan muncul setelah ditambahkan.</p></div>`; return; } artikelListData.forEach(a=>{ const div=document.createElement('div'); div.className='artikel-card'; div.onclick=()=>bukaArtikelFull(a.id); div.innerHTML=`<p class="text-[10.5px] text-cyan-400 font-bold mb-1 tracking-wide">${esc(a.kategori||'KESEHATAN')} • ${esc(a.tanggal||'')}</p><h4 class="font-bold text-[13.5px] text-white leading-snug">${esc(a.judul||'')}</h4><p class="artikel-cuplikan text-[12px] text-slate-300 mt-1.5 leading-relaxed">${esc(a.cuplikan||a.teks||'')}</p><p class="text-[10.5px] text-slate-400 mt-2">Sumber: ${esc(a.sumber||'-')}</p><p class="text-[11px] font-bold text-cyan-300 mt-2">Baca Selengkapnya →</p>`; w.appendChild(div); }); }
+window.bukaArtikelFull=(id)=>{ const a=artikelListData.find(x=>String(x.id)===String(id)); if(!a) return; el('artikelListView').classList.add('hidden'); el('artikelDetailView').classList.remove('hidden'); el('artikelDetailKategori').textContent=a.kategori||'KESEHATAN'; el('artikelDetailJudul').textContent=a.judul||''; el('artikelDetailMeta').textContent=`KlinikQue • ${a.tanggal||''}`; el('artikelDetailIsi').innerHTML=rapikan(a.isi||a.cuplikan||a.teks||''); el('artikelDetailSumber').textContent=a.sumber||'-'; const l=el('artikelDetailLink'); if(a.link){ l.href=a.link; l.style.display='inline-block'; } else l.style.display='none'; const img=el('artikelDetailGambar'); if(a.gambar||a.image){ img.src=a.gambar||a.image; img.classList.remove('hidden'); } else img.classList.add('hidden'); document.querySelector('.popup-box').scrollTop=0; };
+window.kembaliKeDaftarArtikel=()=>{ el('artikelDetailView').classList.add('hidden'); el('artikelListView').classList.remove('hidden'); };
+function hitungJarak(a,b,c,d){ const R=6371, dLat=(c-a)*Math.PI/180, dLng=(d-b)*Math.PI/180, x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
+window.aktifkanGPS=()=>{ if(!navigator.geolocation){ showToast('HP tidak dukung GPS.'); return; } navigator.geolocation.getCurrentPosition(p=>{ posisiPasien={lat:p.coords.latitude,lng:p.coords.longitude}; renderLokasi(); },()=>{ showToast('GPS ditolak. Izinkan lokasi lalu klik lagi.'); },{enableHighAccuracy:true,timeout:10000,maximumAge:60000}); };
+window.bukaNavigasiPresisi=(k)=>{ let url=''; if(k.lat&&k.lng){ url=`https://www.google.com/maps/dir/?api=1&destination=${k.lat},${k.lng}&travelmode=driving`; } else { url=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((k.namaKlinik||"")+" "+(k.alamat||"")+", Bandung")}`; } window.open(url,'_blank'); };
+window.renderLokasi=()=>{ const w=el('lokasiList'); if(!w) return; let list=[...dokterListData]; const cari=(el('cariLokasi')?.value||'').toLowerCase().trim(); if(cari){ list=list.filter(k=>`${k.nama||''} ${k.namaKlinik||''} ${k.alamat||''} ${k.spesialis||''}`.toLowerCase().includes(cari)); } list=list.map(k=>{ let j=null; if(posisiPasien&&k.lat&&k.lng) j=hitungJarak(posisiPasien.lat,posisiPasien.lng,parseFloat(k.lat),parseFloat(k.lng)); return {...k,_jarak:j}; }); list.sort((a,b)=>{ const ba=a._statusBuka?.buka?0:1, bb=b._statusBuka?.buka?0:1; if(ba!==bb) return ba-bb; if(a._jarak==null&&b._jarak==null) return 0; if(a._jarak==null) return 1; if(b._jarak==null) return -1; return a._jarak-b._jarak; }); w.innerHTML=''; if(!list.length){ w.innerHTML=`<div class="popup-card text-center"><p class="text-[13px] font-bold text-white">Belum ada klinik</p><p class="text-[11px] text-slate-400 mt-1">Belum ada dokter yang daftar.</p></div>`; return; } window.__CURR_LOKASI__=list; list.forEach((k,idx)=>{ const div=document.createElement('div'); div.className='lokasi-card'; div.onclick=()=>window.bukaNavigasiPresisi(k); const jarakTeks=k._jarak!=null?(k._jarak<1?Math.round(k._jarak*1000)+' m dari kamu':k._jarak.toFixed(1)+' km dari kamu'):(posisiPasien?'Aktifin GPS untuk hitung jarak':'Aktifin GPS untuk liat jarak'); const st=k._statusBuka||{buka:true,alasan:"Buka"}; const badge=st.buka?`<span class="badge-buka on"><span class="dot-hidup"></span> BUKA</span>`:`<span class="badge-buka off"><span class="dot-mati"></span> TUTUP</span>`; div.innerHTML=`<div class="flex items-start gap-3"><div>${avatarHTML(k)}</div><div class="flex-1 min-w-0"><div class="flex items-start justify-between gap-2"><div class="flex-1 min-w-0"><p class="font-bold text-[13.5px] text-white leading-tight">${esc(k.namaKlinik)}</p><p class="text-[12px] text-cyan-300 mt-0.5 font-semibold">${esc(namaLengkap(k))} • ${esc(k.spesialis)}</p></div>${badge}</div><p class="text-[11.5px] ${st.buka?'text-green-300':'text-red-300'} mt-1.5 font-medium">${esc(st.alasan)}</p></div></div><p class="text-[12px] text-slate-200 mt-3 leading-relaxed">📍 ${esc(k.alamat||"-")}</p><p class="text-[11.5px] text-slate-300 mt-1">🕐 ${esc(k.jam)}</p><p class="text-[11.5px] text-slate-300 mt-1">📏 ${esc(jarakTeks)}</p><div class="flex gap-2 mt-3"><button onclick="event.stopPropagation(); window.bukaNavigasiPresisi(window.__CURR_LOKASI__[${idx}])" class="flex-1 py-3 ${st.buka?'bg-cyan-400 text-slate-950':'bg-white/10 border border-white/15 text-white'} rounded-xl text-[11.5px] font-bold">${st.buka?'🧭 Navigasi Sekarang →':'📍 Lihat Lokasi'}</button>${k.telepon?`<a href="tel:${esc(k.telepon)}" onclick="event.stopPropagation()" class="px-4 py-3 bg-white/10 border border-white/15 rounded-xl text-[11.5px] font-bold">📞 Telpon</a>`:''}</div>`; w.appendChild(div); }); };
+const judulPopup={'popup-dokter-semua':['Semua Dokter Mitra','Dokter yang terdaftar di KlinikQue'],'popup-lainnya':['Menu Lainnya','Jelajahi fitur lainnya'],'popup-pengingat':['Pengingat Obat','Bunyi tiap 2 menit sampai Sudah Minum'],'popup-cekantren':['Cek Antrean','Cek status antrean kamu'],'popup-kalkulator':['Kalkulator Sehat','Cek BMI & tekanan darah'],'popup-faq':['Tanya Jawab','Pertanyaan seputar layanan'],'popup-info-obat':['Info Obat','Info obat umum, bukan resep'],'popup-darurat':['Nomor Darurat','Hubungi bantuan dengan cepat'],'popup-artikel':['Artikel Kesehatan','Edukasi & tips sehat'],'popup-statistik':['Statistik Klinik','Ringkasan aktivitas KlinikQue'],'popup-lokasi':['Lokasi Klinik','Klinik terdekat dari kamu']};
+window.bukaPopup=(id)=>{ if(id==='popup-artikel'){ window.kembaliKeDaftarArtikel(); renderArtikelList(); } if(id==='popup-lokasi'){ renderLokasi(); } if(id==='popup-dokter-semua'){ renderDokterSemua(); } if(id==='popup-pengingat'){ renderPengingat(); } document.querySelectorAll('.popup-content').forEach(p=>p.classList.remove('open')); const t=document.getElementById(id); if(t) t.classList.add('open'); const j=judulPopup[id]||['Layanan','']; el('popupTitle').textContent=j[0]; el('popupSub').textContent=j[1]||''; el('popupBg').classList.add('open'); };
+window.tutupPopup=()=>{ el('popupBg').classList.remove('open'); document.querySelectorAll('.popup-content').forEach(p=>p.classList.remove('open')); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') window.tutupPopup(); });
+document.addEventListener('touchmove',e=>{ if(e.target.closest('.bagian-bawah-scroll')||e.target.closest('.popup-box')) return; e.preventDefault(); },{passive:false});
+document.addEventListener('wheel',e=>{ if(e.target.closest('.bagian-bawah-scroll')||e.target.closest('.popup-box')) return; e.preventDefault(); },{passive:false});
+window.cekAntrean=async()=>{
+  const kodeRaw=el('kodeBooking').value.trim().toUpperCase(), box=el('hasilAntrean'); box.classList.remove('hidden');
+  if(!kodeRaw){ box.innerHTML='Masukin nomor antrean / kode booking / No. RM dulu.'; return; }
+  const d=getDB(); if(!d){ box.innerHTML='Belum tersambung.'; return; }
+  box.innerHTML='Mencari...';
+  try{
+    let found=null;
+    const tries=[
+      query(collection(d,"antrian"), where("nomorAntrian","==",kodeRaw)),
+      query(collection(d,"antrian"), where("noRM","==",kodeRaw)),
+      query(collection(d,"antrian"), where("kodeBooking","==",kodeRaw)),
+      query(collection(d,"antrian"), where("kode","==",kodeRaw)),
+    ];
+    for(const q of tries){
+      if(found) break;
+      const snap=await getDocs(q);
+      if(!snap.empty){ const doc=snap.docs[0]; found={id:doc.id,...doc.data()}; }
+    }
+    if(!found){ box.innerHTML=`Kode <b>${esc(kodeRaw)}</b> belum ketemu.<br><span class="text-slate-400">Coba masukin nomor antrean dari karcis (contoh: A-01) atau No. RM kamu.</span>`; return; }
+    const namaSensor = (found.namaPasien||found.nama||'-').replace(/(.{2}).+(.{1})/, '$1***$2');
+    const serverJam = getServerNow().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    box.innerHTML=`<b>${esc(kodeRaw)} DITEMUKAN ✅</b><br>Pasien: ${esc(namaSensor)}<br>Dokter: ${esc(found.dokter||'-')}<br>Nomor: <b>${esc(found.nomorAntrian||found.nomor||'-')}</b><br>Status: <b>${esc(found.status||'Menunggu')}</b><br>Sesi: ${esc(found.waktu||found.sesi||'-')}<br>Jam saat cek: <b>${esc(serverJam)} WIB</b>`;
+  }catch(e){ box.innerHTML='Gagal: '+esc(e.message); }
+};
+window.hitungSehat=()=>{ const bb=parseFloat(el('bb').value), tbCm=parseFloat(el('tb').value), sis=parseFloat(el('sistolik').value), dia=parseFloat(el('diastolik').value), box=el('hasilSehat'); box.classList.remove('hidden'); if(!bb||!tbCm){ box.innerHTML='Isi berat & tinggi dulu ya.'; return; } const bmi=(bb/((tbCm/100)*(tbCm/100))).toFixed(1); let k=bmi<18.5?'Kurus':bmi<25?'Normal ✅':bmi<30?'Gemuk':'Obesitas'; let t=''; if(sis&&dia){ t=sis<90||dia<60?'Tensi rendah.':sis<120&&dia<80?'Tensi normal ✅':sis<140&&dia<90?'Tensi agak tinggi.':'Tensi tinggi! Segera periksa.'; t=`<br>Tensi ${sis}/${dia} - ${t}`; } box.innerHTML=`<b>BMI Kamu: ${bmi}</b> - ${k}${t}`; };
+function updateStatistik(){ const els=document.querySelectorAll('#statPasien'); if(els[0]) els[0].textContent=antreanListData.length||0; const sd=el('statDokter'); if(sd) sd.textContent=dokterListData.length||0; const sa=el('statAntreanAktif'); if(sa) sa.textContent=antreanAktifCount||0; }
+loadFirebase();
+</script></body></html>

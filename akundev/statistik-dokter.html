@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistik Kinerja Dokter - KlinikQue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; -webkit-font-smoothing: antialiased; }
+        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .glass-input { background: rgba(30, 41, 59, 0.6); border: 1.5px solid rgba(255, 255, 255, 0.1); color: white; }
+        .glass-input:focus { border-color: #06b6d4; outline: none; }
+        .mini-id-card { background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%); border: 1px solid rgba(6, 182, 212, 0.3); }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between pb-8 text-xs">
+    <header class="w-full bg-slate-950/90 border-b border-white/10 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <a href="dashboard-dev.html" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition-all" title="Kembali">
+                    <i class="fa-solid fa-arrow-left text-xs"></i>
+                </a>
+                <div>
+                    <span class="text-[9px] text-cyan-400 block uppercase font-bold tracking-wider">Dev Hub</span>
+                    <span class="text-xs font-extrabold text-white">Statistik Kinerja Dokter</span>
+                </div>
+            </div>
+            <span class="px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-[10px]">
+                <i class="fa-solid fa-circle text-[7px] mr-1"></i> Firestore Live
+            </span>
+        </div>
+    </header>
+    <main class="w-full max-w-md mx-auto px-4 py-4 space-y-4 flex-grow">
+        <div class="grid grid-cols-2 gap-3">
+            <div class="glass-card rounded-2xl p-3.5 border border-white/10">
+                <span class="text-[9px] text-slate-400 uppercase tracking-wider block">Total Dokter Aktif</span>
+                <h3 id="total-doctors-count" class="text-lg font-extrabold text-cyan-400 mt-1">0</h3>
+            </div>
+            <div class="glass-card rounded-2xl p-3.5 border border-white/10">
+                <span class="text-[9px] text-slate-400 uppercase tracking-wider block">Total Konsultasi</span>
+                <h3 id="total-consultations" class="text-lg font-extrabold text-emerald-400 mt-1">0</h3>
+            </div>
+        </div>
+        <div class="glass-card rounded-2xl p-4 space-y-3 border border-white/10">
+            <div class="space-y-1.5">
+                <label class="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Cari Dokter (Nama / ID)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-magnifying-glass text-[10px]"></i></span>
+                    <input type="text" id="search-doctor-input" onkeyup="filterDoctorList()" placeholder="Contoh: Budi atau 7840..." class="w-full glass-input rounded-xl px-3 py-2 pl-8 text-xs placeholder-slate-400">
+                </div>
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Pilih Dokter (Dropdown)</label>
+                <select id="doctor-dropdown" onchange="onDoctorSelectChange()" class="w-full glass-input rounded-xl px-3 py-2 text-xs bg-slate-900 cursor-pointer">
+                    <option value="all">-- Semua Dokter (Ringkasan Global) --</option>
+                </select>
+            </div>
+        </div>
+        <div class="glass-card rounded-2xl p-4 space-y-3 border border-white/10">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                <div>
+                    <span class="text-[8px] text-cyan-400 font-bold uppercase tracking-wider block">Visualisasi Data</span>
+                    <h2 id="chart-title" class="text-xs font-extrabold text-white">Grafik Kunjungan</h2>
+                </div>
+                <select id="chart-mode-select" onchange="updateChartMode()" class="bg-slate-900 border border-cyan-500/40 text-cyan-300 rounded-lg px-2 py-1 text-[10px] font-bold cursor-pointer outline-none">
+                    <option value="daily">Harian (Senin - Minggu)</option>
+                    <option value="monthly">Bulanan (Jan - Des)</option>
+                </select>
+            </div>
+            <div class="relative w-full h-52 bg-slate-950/40 rounded-xl p-2 border border-white/5">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+            <div class="border-b border-white/10 pb-2 flex items-center justify-between">
+                <h2 class="text-xs font-extrabold text-white">Rincian Kartu Mitra Dokter</h2>
+                <span class="text-[9px] text-slate-400">Koleksi /dokter</span>
+            </div>
+            <div id="doctor-stats-container" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                <div class="bg-slate-900/60 border border-white/10 rounded-xl p-3 text-center text-slate-400 italic">Memuat data dari cloud...</div>
+            </div>
+        </div>
+    </main>
+    <footer class="w-full text-center text-[10px] text-slate-500 py-3 border-t border-white/10 mt-4">
+        &copy; 2026 KlinikQue Developer Hub. All rights reserved.
+    </footer>
+    <script type="module" src="../firebase/firebase-init.js"></script>
+    <script>
+        let allApprovedDoctors = [];
+        let completedHistoryCache = [];
+        let myChart = null;
+
+        function getFoto(d){ return d.foto || d.photoURL || d.avatar || d.fotoProfil || "https://via.placeholder.com/50"; }
+        function getIdMitra(d){ return d.idNumber || d.noId || (d.uid ? `ID-${String(d.uid).slice(0,4)}` : "ID-MITRA"); }
+        function getTanggalWIBFromData(h){
+          if(h.tanggalWIB) return h.tanggalWIB;
+          if(h.tanggalStr) return h.tanggalStr;
+          if(h.createdAt){
+            const ms = typeof h.createdAt === 'number' ? h.createdAt : (h.createdAt.seconds ? h.createdAt.seconds*1000 : Date.now());
+            const n = new Date(new Date(ms).toLocaleString('en-US',{timeZone:'Asia/Jakarta'}));
+            return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+          }
+          return "";
+        }
+
+        async function loadDoctorStats() {
+            try {
+                const checkDb = setInterval(async () => {
+                    if (window.dbOnline && window.fsGetDocs) {
+                        clearInterval(checkDb);
+                        const db = window.dbOnline;
+                        const qDokter = window.fsQuery(window.fsCollection(db, "dokter"), window.fsWhere("status", "==", "approved"));
+                        const [docSnapshot, historySnapshot] = await Promise.all([
+                            window.fsGetDocs(qDokter),
+                            window.fsGetDocs(window.fsCollection(db, "riwayatSelesai")).catch(() => ({ forEach: () => {} }))
+                        ]);
+                        allApprovedDoctors = [];
+                        docSnapshot.forEach((docSnap) => {
+                            allApprovedDoctors.push({ firestoreId: docSnap.id, uid: docSnap.id, ...docSnap.data() });
+                        });
+                        completedHistoryCache = [];
+                        historySnapshot.forEach((docSnap) => {
+                            completedHistoryCache.push(docSnap.data());
+                        });
+                        populateDropdown(allApprovedDoctors);
+                        renderStatsUI(allApprovedDoctors);
+                        renderChart();
+                    }
+                }, 100);
+            } catch (err) { console.error("Gagal memuat statistik:", err); }
+        }
+
+        function populateDropdown(doctors) {
+            const dropdown = document.getElementById('doctor-dropdown');
+            dropdown.innerHTML = `<option value="all">-- Semua Dokter (Ringkasan Global) --</option>`;
+            doctors.forEach((doc) => {
+                dropdown.innerHTML += `<option value="${doc.uid}">${doc.nama || '-'} (${doc.spesialis || '-'})</option>`;
+            });
+        }
+
+        function renderStatsUI(doctors) {
+            const container = document.getElementById('doctor-stats-container');
+            container.innerHTML = "";
+            let totalPatientsSum = completedHistoryCache.length;
+            if (doctors.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-500 italic py-2">Belum ada dokter yang disetujui di cloud.</p>`;
+                document.getElementById('total-doctors-count').innerText = "0";
+                document.getElementById('total-consultations').innerText = "0";
+                return;
+            }
+            doctors.forEach((data) => {
+                let doctorHistory = completedHistoryCache.filter(h => h.dokterId === data.uid || h.dokterId === data.firestoreId);
+                let pasienCount = doctorHistory.length;
+                let cutiBadge = (data.cuti) ? `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[8px] font-bold">Cuti: ${data.cuti}</span>` : `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[8px] font-bold">Aktif Praktik</span>`;
+                container.innerHTML += `
+                    <div class="mini-id-card rounded-2xl p-3.5 relative overflow-hidden space-y-2.5">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                            <span class="text-[9px] text-cyan-300 font-mono font-bold uppercase">${getIdMitra(data)}</span>
+                            ${cutiBadge}
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <img src="${getFoto(data)}" class="w-12 h-12 rounded-xl object-cover border-2 border-cyan-400/50 shrink-0">
+                            <div class="overflow-hidden flex-grow">
+                                <h4 class="text-xs font-extrabold text-white truncate">${data.nama || '-'}</h4>
+                                <p class="text-[10px] text-cyan-400 font-semibold truncate">${data.spesialis || '-'}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-[10px]">
+                            <div class="bg-black/30 p-2 rounded-xl"><span class="text-slate-400 block text-[8px] uppercase">Pasien Ditangani</span><span class="font-extrabold text-cyan-300 text-xs">${pasienCount} Pasien</span></div>
+                            <div class="bg-black/30 p-2 rounded-xl"><span class="text-slate-400 block text-[8px] uppercase">Status Sistem</span><span class="font-extrabold text-emerald-400 text-xs">Verified</span></div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('total-doctors-count').innerText = doctors.length;
+            document.getElementById('total-consultations').innerText = totalPatientsSum;
+        }
+
+        function filterDoctorList() {
+            let q = document.getElementById('search-doctor-input').value.toLowerCase();
+            renderStatsUI(allApprovedDoctors.filter(d => (d.nama||'').toLowerCase().includes(q) || getIdMitra(d).toLowerCase().includes(q) || (d.spesialis||'').toLowerCase().includes(q)));
+            document.getElementById('doctor-dropdown').value = 'all';
+            renderChart();
+        }
+
+        function onDoctorSelectChange() {
+            let uid = document.getElementById('doctor-dropdown').value;
+            document.getElementById('search-doctor-input').value = "";
+            renderStatsUI(uid === 'all' ? allApprovedDoctors : allApprovedDoctors.filter(d => d.uid === uid));
+            renderChart();
+        }
+
+        function updateChartMode() { renderChart(); }
+
+        function renderChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const mode = document.getElementById('chart-mode-select').value;
+            const selectedUid = document.getElementById('doctor-dropdown').value;
+            let relevantHistory = selectedUid === 'all' ? completedHistoryCache : completedHistoryCache.filter(h => h.dokterId === selectedUid);
+            let chartLabels = mode === 'daily' ? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            let chartDataValues = chartLabels.map(() => 0);
+            const namaHari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+            const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            relevantHistory.forEach(h => {
+              const tglStr = getTanggalWIBFromData(h);
+              if(!tglStr) return;
+              const d = new Date(tglStr + "T00:00:00");
+              if(isNaN(d)) return;
+              if(mode === 'daily'){
+                const hari = h.hari || namaHari[d.getDay()];
+                const idx = chartLabels.indexOf(hari);
+                if(idx >= 0) chartDataValues[idx]++;
+              } else {
+                const bulan = h.bulan || namaBulan[d.getMonth()];
+                const idx = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'].indexOf(bulan);
+                if(idx >= 0) chartDataValues[idx]++;
+              }
+            });
+            document.getElementById('chart-title').innerText = mode === 'daily' ? 'Grafik Kunjungan Harian' : 'Grafik Kunjungan Bulanan';
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: chartLabels, datasets: [{ label: mode === 'daily' ? 'Kunjungan Harian' : 'Kunjungan Bulanan', data: chartDataValues, backgroundColor: 'rgba(6, 182, 212, 0.75)', borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8', beginAtZero: true, precision: 0 } } } }
+            });
+        }
+
+        window.addEventListener('load', loadDoctorStats);
+    </script>
+</body>
+</html>

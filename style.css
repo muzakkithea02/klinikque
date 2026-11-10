@@ -1,0 +1,36 @@
+body {
+    background-color: #08080c;
+    background-image:
+        radial-gradient(circle at 50% 15%, rgba(234, 179, 8, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 10% 80%, rgba(6, 182, 212, 0.06) 0%, transparent 40%);
+}
+.glow-gold {
+    box-shadow: 0 0 50px -10px rgba(234, 179, 8, 0.15);
+}
+@keyframes floatPulse {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-10px) scale(1.01); }
+}
+.animate-float {
+    animation: floatPulse 5s ease-in-out infinite;
+}
+.glass-panel {
+    background: rgba(18, 18, 26, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* Tambahan biar konsisten di semua halaman */
+.tab-content.hidden { display: none; }
+input, select, textarea { outline: none; }
+input:focus, select:focus, textarea:focus {
+    border-color: rgba(6,182,212,0.7) !important;
+    box-shadow: 0 0 0 3px rgba(6,182,212,0.15);
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+
+
+Nih code gua
